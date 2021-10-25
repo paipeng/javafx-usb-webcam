@@ -21,6 +21,9 @@ mainClassName = 'com.paipeng.javafx.webcam.WebCamApplication'
 repositories {
     //mavenCentral()
     maven{url 'https://maven.aliyun.com/nexus/content/repositories/central/'}
+    maven {
+        url 'http://oss.sonatype.org/content/repositories/snapshots'
+    }
 }
 
 
@@ -42,6 +45,9 @@ dependencies {
 
     // https://mvnrepository.com/artifact/net.java.dev.jna/jna
     api group: 'net.java.dev.jna', name: 'jna', version: '5.9.0'
+
+    api group: 'com.github.sarxos', name: 'webcam-capture', version: '0.3.13-SNAPSHOT'
+    api group: 'com.github.sarxos', name: 'webcam-capture-driver-openimaj', version: '0.3.13-SNAPSHOT'
 
     // https://mvnrepository.com/artifact/javax.usb/usb-api
     api group: 'javax.usb', name: 'usb-api', version: '1.0.2'
