@@ -1,6 +1,7 @@
 package com.paipeng.javafx.webcam.controller;
 
 import com.github.sarxos.webcam.Webcam;
+import com.github.sarxos.webcam.WebcamResolution;
 import com.github.sarxos.webcam.ds.buildin.natives.Device;
 import com.github.sarxos.webcam.ds.buildin.natives.DeviceList;
 import com.github.sarxos.webcam.ds.buildin.natives.OpenIMAJGrabber;
@@ -15,7 +16,6 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
-public class WebCamViewController  implements Initializable {
+public class WebCamViewController implements Initializable {
     public static Logger logger = LoggerFactory.getLogger(WebCamViewController.class);
     private static Stage stage;
     private static final String FXML_FILE = "/fxml/WebCamViewController.fxml";
@@ -38,18 +38,25 @@ public class WebCamViewController  implements Initializable {
     @FXML
     private Button captureButton;
 
-    public static Webcam webcam;
+    public static Webcam selWebCam;
     public static boolean isCapture = false;
-
+    private int webCamIndex;
+    private int webCamCounter = 0;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
         previewImageView.setImage(new Image(Objects.requireNonNull(WebCamViewController.class.getResourceAsStream("/images/logo.png"))));
-
+        openButton.setOnMouseClicked(event -> {
+            logger.trace("openButton clicked");
+            if (webCamCounter > 0) {
+                startWebcam();
+            } else {
+                logger.error("no camera found!");
+            }
+        });
         searchWebcam();
+        //startWebcam();
     }
-
 
     public static void start() {
         logger.trace("start");
@@ -73,34 +80,64 @@ public class WebCamViewController  implements Initializable {
     }
 
     private void searchWebcam() {
+        try {
+            //options = CaptureUtils.getInstance().getCaptureList();
+            OpenIMAJGrabber g = new OpenIMAJGrabber();
+            logger.info("get list of devices");
+            DeviceList list = g.getVideoDevices().get();
+            logger.info("list devices");
+            //String[] devides = propertiesUtils.getDeviceName().split(",");
+            for (int i = 0; i < list.getNumDevices(); i++) {
+                Device d = list.getDevice(i).get();
+                logger.info("device: " + i + " id: " + d.getIdentifierStr() + " deviceName:" + d.getNameStr());
+                webCamCounter++;
+                if (d.getNameStr().contains("Andonstar Camera")) {
+                    webCamIndex = i;
+                }
+            }
+
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+
+        logger.trace("webCamIndex: " + webCamIndex);
+    }
+
+    private void startWebcam() {
         /* Init camera */
-        int webCamIndex = -1;
         if (true) {
             Task<Void> webCamTask = new Task<Void>() {
                 @Override
                 protected Void call() throws Exception {
-                    OpenIMAJGrabber g = new OpenIMAJGrabber();
-                    logger.info("get list of devices");
-                    if (g != null) {
-                        DeviceList list = g.getVideoDevices().get();
-                        logger.info("list devices");
-                        //String[] devides = propertiesUtils.getDeviceName().split(",");
-                        for (int i = 0; i < list.getNumDevices(); i++) {
-                            Device d = list.getDevice(i).get();
-                            logger.info("device: " + i + " id: " + d.getIdentifierStr() + " deviceName:" + d.getNameStr());
-                        }
-                    }
-                    for (Webcam w : Webcam.getWebcams()) {
-                        if(!w.getName().contains("FaceTime"))
-                            webcam = w;
-                    }
-                    if(webcam == null)
-                        webcam = Webcam.getDefault();
-                    Dimension[] sizes = webcam.getViewSizes();
-                    webcam.setViewSize(sizes[sizes.length - 1]);
-                    webcam.open();
+                    if (selWebCam == null) {
+                        logger.trace("startWebcam: " + webCamIndex);
+                        selWebCam = Webcam.getWebcams().get(webCamIndex);
+                        logger.info("device name ···" + Webcam.getWebcams().get(webCamIndex).getName());
+                        //logger.info("webcam view size " + selWebCam.getViewSize().toString());
 
-                    //startWebCamStream();
+                        for (Dimension d : selWebCam.getViewSizes()) {
+                            logger.info("webcam view size: " + d.toString());
+                        }
+                        //setCaptureDimension(selWebCam);
+                        selWebCam.setViewSize(WebcamResolution.VGA.getSize());
+
+                        //selWebCam.setCustomViewSizes(new Dimension[] { WebcamResolution.SXGA.getSize() }); // register custom size
+                        //selWebCam.setViewSize(WebcamResolution.SXGA.getSize()); // set size
+                        logger.info("webcam view size " + selWebCam.getViewSize().toString());
+
+                        if (selWebCam.open() == true) {
+                            logger.info("camera opnened");
+                        } else {
+                            // TODO error handling
+                            logger.error("camera opnen error");
+                        }
+                    } else {
+                        selWebCam = Webcam.getWebcams().get(webCamIndex);
+                        selWebCam.open();
+                    }
+                    //stopCamera = false;
+                    //getPreviewImage();
+
                     new VideoTacker().start(); // Start camera capture
                     return null;
                 }
@@ -112,45 +149,6 @@ public class WebCamViewController  implements Initializable {
 
 
         }
-
-        /*
-        try {
-            //options = CaptureUtils.getInstance().getCaptureList();
-            OpenIMAJGrabber g = new OpenIMAJGrabber();
-            logger.info("get list of devices");
-            if (g != null) {
-                DeviceList list = g.getVideoDevices().get();
-                logger.info("list devices");
-                //String[] devides = propertiesUtils.getDeviceName().split(",");
-                for (int i = 0; i < list.getNumDevices(); i++) {
-                    Device d = list.getDevice(i).get();
-                    logger.info("device: " + i + " id: " + d.getIdentifierStr() + " deviceName:" + d.getNameStr());
-                    webCamIndex = i;
-                    //webCamCounter++;
-                    //for (int j = 0; j < devides.length; j++) {
-                    //    if (d.getNameStr().contains(devides[j])) {
-                    //        webCamIndex = i;
-                    //    }
-                    //}
-                }
-            }
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
-        List<Webcam> webcamDeviceList = Webcam.getWebcams();
-        for (Webcam webcam1 : webcamDeviceList) {
-            logger.trace("Webcam1: " + webcam1.getName());
-        }
-        webcam = Webcam.getWebcams().get(webCamIndex);
-        if(webcam == null) {
-            logger.error("Camera not found");
-        } else {
-            webcam.setViewSize(new Dimension(640, 480));
-            webcam.open();
-            new VideoTacker().start(); // Start camera capture
-        }
-
-         */
     }
 
 
@@ -159,7 +157,7 @@ public class WebCamViewController  implements Initializable {
         public void run() {
             while (!isCapture) { // For each 30 millisecond take picture and set it in image view
                 try {
-                    previewImageView.setImage(SwingFXUtils.toFXImage(webcam.getImage(), null));
+                    previewImageView.setImage(SwingFXUtils.toFXImage(selWebCam.getImage(), null));
                     sleep(30);
                 } catch (InterruptedException ex) {
                     logger.error(ex.getMessage());
