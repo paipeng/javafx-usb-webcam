@@ -22,7 +22,7 @@ repositories {
     //mavenCentral()
     maven{url 'https://maven.aliyun.com/nexus/content/repositories/central/'}
     maven {
-        url 'http://oss.sonatype.org/content/repositories/snapshots'
+        url 'https://oss.sonatype.org/content/repositories/snapshots'
     }
 }
 
