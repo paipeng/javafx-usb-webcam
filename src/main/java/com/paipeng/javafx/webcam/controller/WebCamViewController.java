@@ -5,6 +5,7 @@ import com.github.sarxos.webcam.WebcamResolution;
 import com.github.sarxos.webcam.ds.buildin.natives.Device;
 import com.github.sarxos.webcam.ds.buildin.natives.DeviceList;
 import com.github.sarxos.webcam.ds.buildin.natives.OpenIMAJGrabber;
+import com.github.sarxos.webcam.ds.javacv.JavaCvDriver;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
@@ -40,21 +41,24 @@ public class WebCamViewController implements Initializable {
 
     public static Webcam selWebCam;
     public static boolean isCapture = false;
-    private int webCamIndex;
+    private int webCamIndex = 0;
     private int webCamCounter = 0;
 
+    static {
+        Webcam.setDriver(new JavaCvDriver());
+    }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         previewImageView.setImage(new Image(Objects.requireNonNull(WebCamViewController.class.getResourceAsStream("/images/logo.png"))));
         openButton.setOnMouseClicked(event -> {
             logger.trace("openButton clicked");
-            if (webCamCounter > 0) {
+            if (webCamCounter >= 0) {
                 startWebcam();
             } else {
                 logger.error("no camera found!");
             }
         });
-        searchWebcam();
+        //searchWebcam();
         //startWebcam();
     }
 
