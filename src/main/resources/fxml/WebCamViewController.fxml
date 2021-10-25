@@ -34,6 +34,9 @@
 
     </right>
     <bottom>
-
+        <HBox>
+            <Button fx:id="openButton" text="%open_webcam"></Button>
+            <Button fx:id="captureButton" text="%capture_image"></Button>
+        </HBox>
     </bottom>
 </BorderPane>
