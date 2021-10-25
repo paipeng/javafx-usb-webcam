@@ -1,0 +1,47 @@
+plugins {
+    id 'java-library'
+    id 'application'
+}
+
+group 'com.paipeng'
+version '1.0-SNAPSHOT'
+def webcamCaptureVersion = '0.3.12'
+sourceCompatibility = 1.8
+mainClassName = 'com.paipeng.javafx.webcam.WebCamApplication'
+
+repositories {
+    mavenCentral()
+}
+
+
+
+javadoc {
+    options.addStringOption('encoding', 'UTF-8')
+}
+compileJava.options.encoding = 'UTF-8'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+
+dependencies {
+    api group: 'org.slf4j', name: 'slf4j-api', version: '1.7.22'
+    api group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.22'
+
+
+    api 'com.github.sarxos:webcam-capture:' + webcamCaptureVersion
+    api 'com.github.sarxos:webcam-capture-drivers:' + webcamCaptureVersion
+    api 'com.github.sarxos:webcam-capture-driver-v4l4j:' + webcamCaptureVersion
+    api 'com.github.sarxos:webcam-capture-driver-vlcj:' + webcamCaptureVersion
+    api 'com.github.sarxos:webcam-capture-driver-openimaj:' + webcamCaptureVersion
+    api 'com.github.sarxos:v4l4j:0.9.1-r507'
+    api 'com.github.sarxos:lti-civil-no-swt:20070920-1721'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+test {
+    useJUnitPlatform()
+}
