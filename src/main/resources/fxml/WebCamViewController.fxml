@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import com.paipeng.javafx.webcam.controller.WebCamViewController?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.paipeng.javafx.webcam.controller.WebCamViewController"
+            prefHeight="800.0" prefWidth="1440.0" >
+    <top>
+    </top>
+    <left>
+
+    </left>
+    <center>
+        <AnchorPane xmlns="http://javafx.com/javafx"
+                    xmlns:fx="http://javafx.com/fxml"
+                    prefHeight="600.0" prefWidth="800.0">
+            <StackPane>
+                <children>
+                    <ImageView fx:id="previewImageView" fitHeight="480.0" fitWidth="640.0" pickOnBounds="true"
+                               preserveRatio="true"/>
+                </children>
+            </StackPane>
+        </AnchorPane>
+    </center>
+    <right>
+
+    </right>
+    <bottom>
+
+    </bottom>
+</BorderPane>
