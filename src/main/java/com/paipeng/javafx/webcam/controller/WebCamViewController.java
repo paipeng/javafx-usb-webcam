@@ -1,10 +1,13 @@
 package com.paipeng.javafx.webcam.controller;
 
 import com.github.sarxos.webcam.Webcam;
+import com.github.sarxos.webcam.WebcamException;
+import com.github.sarxos.webcam.WebcamLock;
 import com.github.sarxos.webcam.WebcamResolution;
 import com.github.sarxos.webcam.ds.buildin.natives.Device;
 import com.github.sarxos.webcam.ds.buildin.natives.DeviceList;
 import com.github.sarxos.webcam.ds.buildin.natives.OpenIMAJGrabber;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
@@ -13,6 +16,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
@@ -21,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.net.URL;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -38,20 +43,30 @@ public class WebCamViewController implements Initializable {
     @FXML
     private Button captureButton;
 
+    @FXML
+    private TextField fpsTextField;
+
     public static Webcam selWebCam;
     public static boolean isCapture = false;
     private int webCamIndex;
     private int webCamCounter = 0;
+
+    private VideoTacker videoTacker;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         previewImageView.setImage(new Image(Objects.requireNonNull(WebCamViewController.class.getResourceAsStream("/images/logo.png"))));
         openButton.setOnMouseClicked(event -> {
             logger.trace("openButton clicked");
-            if (webCamCounter > 0) {
-                startWebcam();
+
+            if (isWebcamOpened()) {
+                stopWebcam();
             } else {
-                logger.error("no camera found!");
+                if (webCamCounter > 0) {
+                    startWebcam();
+                } else {
+                    logger.error("no camera found!");
+                }
             }
         });
         searchWebcam();
@@ -105,7 +120,7 @@ public class WebCamViewController implements Initializable {
 
     private void startWebcam() {
         /* Init camera */
-        if (true) {
+        if (com.sun.jna.Platform.isMac()) {
             Task<Void> webCamTask = new Task<Void>() {
                 @Override
                 protected Void call() throws Exception {
@@ -113,12 +128,10 @@ public class WebCamViewController implements Initializable {
                         logger.trace("startWebcam: " + webCamIndex);
                         selWebCam = Webcam.getWebcams().get(webCamIndex);
                         logger.info("device name ···" + Webcam.getWebcams().get(webCamIndex).getName());
-                        //logger.info("webcam view size " + selWebCam.getViewSize().toString());
 
                         for (Dimension d : selWebCam.getViewSizes()) {
                             logger.info("webcam view size: " + d.toString());
                         }
-                        //setCaptureDimension(selWebCam);
                         selWebCam.setViewSize(WebcamResolution.VGA.getSize());
 
                         //selWebCam.setCustomViewSizes(new Dimension[] { WebcamResolution.SXGA.getSize() }); // register custom size
@@ -127,6 +140,7 @@ public class WebCamViewController implements Initializable {
 
                         if (selWebCam.open() == true) {
                             logger.info("camera opnened");
+                            webcamOpened();
                         } else {
                             // TODO error handling
                             logger.error("camera opnen error");
@@ -137,17 +151,86 @@ public class WebCamViewController implements Initializable {
                     }
                     //stopCamera = false;
                     //getPreviewImage();
-
-                    new VideoTacker().start(); // Start camera capture
+                    startVideoTacker();
                     return null;
                 }
             };
-
             Thread webCamThread = new Thread(webCamTask);
             webCamThread.setDaemon(true);
             webCamThread.start();
+        } else {
+            List<Webcam> webcamDeviceList = Webcam.getWebcams();
+            if (webcamDeviceList != null) {
+                for (Webcam webcam : webcamDeviceList) {
+                    logger.info("webcam name " + webcam.getDevice().getName());
+                }
+            }
+            if (selWebCam == null && webcamDeviceList.size() != 0) {
 
+                logger.info("device name：" + Webcam.getWebcams().get(webCamIndex).getName());
+                selWebCam = Webcam.getWebcams().get(webCamIndex);
+                logger.info("webcam view size " + selWebCam.getViewSize().toString());
+                for (Dimension d : selWebCam.getViewSizes()) {
+                    logger.info("webcam view size: " + d.getWidth() + "-" + d.getHeight());
+                }
+                WebcamLock webcamLock = selWebCam.getLock();
+                if (webcamLock.isLocked()) {
+                    webcamLock.unlock();
+                    webcamLock.disable();
+                }
+                selWebCam.setViewSize(WebcamResolution.VGA.getSize());
+                logger.info("webcam view size " + selWebCam.getViewSize().toString());
+                try {
+                    if (selWebCam.isImageNew() && selWebCam.getDevice() != null) {
+                        logger.info("start webcam·····");
+                        selWebCam.open();
+                        startVideoTacker();
+                    } else {
+                        logger.error("no ready to start webcam");
+                    }
+                } catch (WebcamException e) {
+                    logger.error(e.getMessage());
+                }
+            }
+        }
+    }
 
+    private void stopWebcam() {
+        logger.trace("webcamOpened");
+        if (isWebcamOpened()) {
+            if (videoTacker.isAlive()) {
+                isCapture = true;
+            }
+            videoTacker = null;
+            selWebCam.close();
+            selWebCam = null;
+        }
+        webcamClosed();
+    }
+
+    private boolean isWebcamOpened() {
+        return selWebCam != null && selWebCam.isOpen();
+    }
+
+    private void webcamOpened() {
+        logger.trace("webcamOpened");
+        Platform.runLater(() -> openButton.setText(getString("close_webcam")));
+
+    }
+
+    private void webcamClosed() {
+        logger.trace("webcamClosed");
+        openButton.setText(getString("open_webcam"));
+
+    }
+
+    private void startVideoTacker() {
+        if (videoTacker == null) {
+            videoTacker = new VideoTacker();
+        }
+        if (!videoTacker.isAlive()) {
+            isCapture = false;
+            videoTacker.start(); // Start camera capture
         }
     }
 
@@ -158,11 +241,23 @@ public class WebCamViewController implements Initializable {
             while (!isCapture) { // For each 30 millisecond take picture and set it in image view
                 try {
                     previewImageView.setImage(SwingFXUtils.toFXImage(selWebCam.getImage(), null));
-                    sleep(30);
-                } catch (InterruptedException ex) {
+                    fpsTextField.setText(String.format("FPS: %2f", selWebCam.getFPS()));
+                } catch (Exception ex) {
                     logger.error(ex.getMessage());
                 }
             }
+
+            logger.trace("VideoTacker ending ...");
         }
+    }
+
+    public static String getString(String key) {
+        try {
+            ResourceBundle resources = ResourceBundle.getBundle("bundles.languages", new Locale("zh", "Zh"));
+            return resources.getString(key);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 }
