@@ -7,6 +7,7 @@ import com.github.sarxos.webcam.WebcamResolution;
 import com.github.sarxos.webcam.ds.buildin.natives.Device;
 import com.github.sarxos.webcam.ds.buildin.natives.DeviceList;
 import com.github.sarxos.webcam.ds.buildin.natives.OpenIMAJGrabber;
+import com.paipeng.javafx.webcam.view.NanogridDecoderResultPane;
 import com.s2icode.jna.model.S2iCodeImage;
 import com.s2icode.jna.nanogrid.decoder.S2iNanogridDecoder;
 import com.s2icode.jna.nanogrid.decoder.model.S2iDecodeConfig;
@@ -15,7 +16,6 @@ import com.s2icode.jna.nanogrid.decoder.model.S2iDecodeParam;
 import com.s2icode.jna.nanogrid.decoder.model.S2iDecodeScore;
 import com.s2icode.jna.s2idetect.S2iDetect;
 import com.s2icode.jna.s2idetect.model.S2iDetectParam;
-import com.s2icode.jna.s2idetect.model.S2iDetectResult;
 import com.s2icode.jna.s2idetect.model.SlaviDetectParam;
 import com.s2icode.jna.s2idetect.model.SlaviDetectResult;
 import com.s2icode.jna.utils.ImageUtils;
@@ -38,17 +38,14 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 import static com.s2icode.jna.utils.ImageUtils.convertPointerToBufferedImage;
-import static com.s2icode.jna.utils.ImageUtils.readS2iCodeImageFromBufferedImage3;
 
 public class WebCamViewController implements Initializable {
     public static Logger logger = LoggerFactory.getLogger(WebCamViewController.class);
@@ -65,6 +62,9 @@ public class WebCamViewController implements Initializable {
 
     @FXML
     private TextField fpsTextField;
+
+    @FXML
+    private NanogridDecoderResultPane nanogridDecoderResultPane;
 
     public static Webcam selWebCam;
     public static boolean isCapture = false;
@@ -348,11 +348,21 @@ public class WebCamViewController implements Initializable {
             s2iCodeImageModel.height = 640;
             ret = s2iNanogridDecoder.decode(s2iCodeImageModel, decodeConfig, decodeParam, decodeScore);
             logger.trace("decode ret: " + ret + " score: " + decodeScore.imageQuality + " nano: " + decodeScore.nanoGridCoefficient);
-            logger.trace("decodeParam brand owner name: " + new String(decodeParam.brand_owner_name, 0, 16, "GB18030"));
+            logger.trace("decodeParam brand owner name: " + new String(decodeParam.brand_owner_name, 0, 32, "GB18030"));
             logger.trace("decodeParam clientId: " + decodeParam.client_id);
             logger.trace("decodeParam serial_number: " + decodeParam.serial_number);
             logger.trace("decodeParam productId: " + decodeParam.product_id);
             logger.trace("decodeParam data: " + new String(decodeParam.data, 0, decodeParam.data_len, "GB18030"));
+
+
+            Platform.runLater(() -> {
+                try {
+                    nanogridDecoderResultPane.updateView(decodeParam, decodeScore);
+                } catch (UnsupportedEncodingException e) {
+                    logger.error(e.getMessage());
+                }
+            });
+
         } catch (Exception e) {
             logger.error(e.getMessage());
         }

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.paipeng.javafx.webcam.view.NanogridDecoderResultPane?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<fx:root type="NanogridDecoderResultPane" xmlns="http://javafx.com/javafx/10.0.2-internal"
+         xmlns:fx="http://javafx.com/fxml/1"
+         fx:controller="com.paipeng.javafx.webcam.view.NanogridDecoderResultPane">
+
+    <VBox minHeight="0.0" minWidth="0.0" prefHeight="768.0" prefWidth="280.0">
+        <HBox>
+            <Label text="%nanogrid_decode_result" prefWidth="120" prefHeight="26"/>
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </HBox>
+        <HBox>
+            <Label text="%nanogrid_brand_owner_name" prefWidth="120" prefHeight="26"/>
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </HBox>
+        <HBox>
+            <TextField fx:id="brandOwnernameTextField" prefWidth="200.0" prefHeight="26" editable="false"/>
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </HBox>
+
+        <HBox>
+            <Label text="%nanogrid_serialnumber" prefWidth="120" prefHeight="26"/>
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </HBox>
+        <HBox>
+            <TextField fx:id="serailNumberTextField" prefWidth="200.0" prefHeight="26" editable="false"/>
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </HBox>
+
+        <HBox>
+            <Label text="%nanogrid_timestamp" prefWidth="120" prefHeight="26"/>
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </HBox>
+        <HBox>
+            <TextField fx:id="timestampTextField" prefWidth="200.0" prefHeight="26" editable="false"/>
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </HBox>
+
+        <HBox>
+            <Separator prefWidth="200.0"/>
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+        </HBox>
+
+        <HBox>
+            <Label text="%nanogrid_data" prefWidth="120" prefHeight="26"/>
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </HBox>
+        <HBox>
+            <TextArea fx:id="nanogridDataTextArea" editable="false" prefHeight="100.0"
+                      prefWidth="200.0" />
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </HBox>
+
+        <HBox>
+            <Separator prefWidth="200.0"/>
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+        </HBox>
+        <HBox>
+            <TextField fx:id="decodeScoreTextField" prefWidth="200.0" prefHeight="26" editable="false"/>
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </HBox>
+
+    </VBox>
+</fx:root>
