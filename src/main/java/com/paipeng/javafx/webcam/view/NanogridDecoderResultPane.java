@@ -69,29 +69,34 @@ public class NanogridDecoderResultPane extends Pane {
 
     public void updateView(S2iDecodeParam.ByReference s2iDecodeParam, S2iDecodeScore.ByReference s2iDecodeScore) {
         logger.trace("updateView");
-        Platform.runLater(() -> {
-            try {
-                if (s2iDecodeParam != null && s2iDecodeScore != null) {
-                    brandOwnernameTextField.setText(new String(s2iDecodeParam.brand_owner_name, 0, 30, "GB18030"));
-                    serailNumberTextField.setText(String.format("%04d%08d%04d", s2iDecodeParam.client_id, s2iDecodeParam.serial_number.intValue(), s2iDecodeParam.product_id));
-
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-                    Date date = new Date(s2iDecodeParam.timestamp.longValue() * 1000);
-                    timestampTextField.setText(simpleDateFormat.format(date));
-
-                    if (s2iDecodeParam.data_len <= 128) {
-                        nanogridDataTextArea.setText(new String(s2iDecodeParam.data, 0, s2iDecodeParam.data_len, "GB18030"));
-                    } else {
-                        logger.error("data len invalid");
-                    }
-                    decodeScoreTextField.setText(String.format(" score: %2.02f (nano: %3d)", s2iDecodeScore.imageQuality, s2iDecodeScore.nanoGridCoefficient));
+        try {
+            if (s2iDecodeParam != null && s2iDecodeScore != null) {
+                String brandOwnerName = new String(s2iDecodeParam.brand_owner_name, 0, 30, "GB18030");
+                String serialNumber = String.format("%04d%08d%04d", s2iDecodeParam.client_id, s2iDecodeParam.serial_number.intValue(), s2iDecodeParam.product_id);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                Date date = new Date(s2iDecodeParam.timestamp.longValue() * 1000);
+                String timestamp = simpleDateFormat.format(date);
+                String score = String.format(" score: %2.02f (nano: %3d)", s2iDecodeScore.imageQuality, s2iDecodeScore.nanoGridCoefficient);
+                String data;
+                if (s2iDecodeParam.data_len <= 128) {
+                    data = new String(s2iDecodeParam.data, 0, s2iDecodeParam.data_len, "GB18030");
                 } else {
-                    initView();
+                    data = "";
+                    logger.error("data len invalid");
                 }
-            } catch (Exception e) {
-                logger.error(e.getMessage());
+
+                brandOwnernameTextField.setText(brandOwnerName);
+                serailNumberTextField.setText(serialNumber);
+                timestampTextField.setText(timestamp);
+                nanogridDataTextArea.setText(data);
+                decodeScoreTextField.setText(score);
+
+            } else {
+                initView();
             }
-        });
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
 
     }
 }
