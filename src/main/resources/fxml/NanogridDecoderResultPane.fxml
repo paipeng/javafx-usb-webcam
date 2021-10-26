@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.text.Font?>
 <fx:root type="NanogridDecoderResultPane" xmlns="http://javafx.com/javafx/10.0.2-internal"
          xmlns:fx="http://javafx.com/fxml/1"
          fx:controller="com.paipeng.javafx.webcam.view.NanogridDecoderResultPane">
@@ -26,7 +27,11 @@
             </padding>
         </HBox>
         <HBox>
-            <TextField fx:id="brandOwnernameTextField" prefWidth="200.0" prefHeight="26" editable="false"/>
+            <TextField fx:id="brandOwnernameTextField" prefWidth="200.0" prefHeight="26" editable="false">
+                <font>
+                    <Font size="12.0"/>
+                </font>
+            </TextField>
             <padding>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
             </padding>
@@ -73,7 +78,11 @@
         </HBox>
         <HBox>
             <TextArea fx:id="nanogridDataTextArea" editable="false" prefHeight="100.0"
-                      prefWidth="200.0" />
+                      prefWidth="200.0">
+                <font>
+                    <Font size="12.0"/>
+                </font>
+            </TextArea>
             <padding>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
             </padding>

@@ -2,6 +2,7 @@ package com.paipeng.javafx.webcam.view;
 
 import com.s2icode.jna.nanogrid.decoder.model.S2iDecodeParam;
 import com.s2icode.jna.nanogrid.decoder.model.S2iDecodeScore;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.TextArea;
@@ -57,21 +58,41 @@ public class NanogridDecoderResultPane extends Pane {
     }
 
     private void initView() {
+        logger.trace("initView");
+        brandOwnernameTextField.setText("");
+        serailNumberTextField.setText("");
+        timestampTextField.setText("");
 
+        nanogridDataTextArea.setText("");
+
+        decodeScoreTextField.setText("");
     }
 
-    public void updateView(S2iDecodeParam.ByReference s2iDecodeParam, S2iDecodeScore.ByReference s2iDecodeScore) throws UnsupportedEncodingException {
+    public void updateView(S2iDecodeParam.ByReference s2iDecodeParam, S2iDecodeScore.ByReference s2iDecodeScore) {
         logger.trace("updateView");
+        Platform.runLater(() -> {
+            try {
+                if (s2iDecodeParam != null && s2iDecodeScore != null) {
+                    brandOwnernameTextField.setText(new String(s2iDecodeParam.brand_owner_name, 0, 30, "GB18030"));
+                    serailNumberTextField.setText(String.format("%04d%08d%04d", s2iDecodeParam.client_id, s2iDecodeParam.serial_number.intValue(), s2iDecodeParam.product_id));
 
-        brandOwnernameTextField.setText(new String(s2iDecodeParam.brand_owner_name, 0, 16, "GB18030"));
-        serailNumberTextField.setText(String.format("%04d%08d%04d", s2iDecodeParam.client_id, s2iDecodeParam.serial_number.intValue(), s2iDecodeParam.product_id));
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                    Date date = new Date(s2iDecodeParam.timestamp.longValue() * 1000);
+                    timestampTextField.setText(simpleDateFormat.format(date));
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        Date date = new Date(s2iDecodeParam.timestamp.longValue()*1000);
-        timestampTextField.setText(simpleDateFormat.format(date));
+                    if (s2iDecodeParam.data_len <= 128) {
+                        nanogridDataTextArea.setText(new String(s2iDecodeParam.data, 0, s2iDecodeParam.data_len, "GB18030"));
+                    } else {
+                        logger.error("data len invalid");
+                    }
+                    decodeScoreTextField.setText(String.format(" score: %2.02f (nano: %3d)", s2iDecodeScore.imageQuality, s2iDecodeScore.nanoGridCoefficient));
+                } else {
+                    initView();
+                }
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+            }
+        });
 
-        nanogridDataTextArea.setText(new String(s2iDecodeParam.data, 0, s2iDecodeParam.data_len, "GB18030"));
-
-        decodeScoreTextField.setText(String.format(" score: %2.02f (nano: %3d)", s2iDecodeScore.imageQuality, s2iDecodeScore.nanoGridCoefficient));
     }
 }
