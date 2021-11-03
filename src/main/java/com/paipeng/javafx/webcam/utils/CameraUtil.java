@@ -141,7 +141,7 @@ public class CameraUtil {
     public void stop() {
         logger.trace("webcamOpened");
         if (isWebcamOpened()) {
-            if (videoTacker.isAlive()) {
+            if (videoTacker != null && videoTacker.isAlive()) {
                 isCapture = true;
             }
             videoTacker = null;
