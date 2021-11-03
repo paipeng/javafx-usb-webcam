@@ -11,6 +11,7 @@ import com.paipeng.javafx.webcam.utils.DecoderUtil;
 import com.paipeng.javafx.webcam.view.NanogridDecoderResultPane;
 import com.s2icode.jna.nanogrid.decoder.model.S2iDecodeParam;
 import com.s2icode.jna.nanogrid.decoder.model.S2iDecodeScore;
+import com.s2icode.jna.utils.ImageUtils;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
@@ -28,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.List;
 import java.util.Locale;
@@ -249,10 +251,14 @@ public class WebCamViewController implements Initializable {
         public void run() {
             while (!isCapture) { // For each 30 millisecond take picture and set it in image view
                 try {
-                    previewImageView.setImage(SwingFXUtils.toFXImage(selWebCam.getImage(), null));
-                    fpsTextField.setText(String.format("FPS: %2f", selWebCam.getFPS()));
+                    BufferedImage bufferedImage = selWebCam.getImage();
+                    if (bufferedImage != null) {
+                        previewImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
+                        //fpsTextField.setText(String.format("FPS: %2f", selWebCam.getFPS()));
 
-                    DecoderUtil.getInstance().doDecodeWithDetect(selWebCam.getImage(), this);
+                        ImageUtils.saveBufferedImageToBmp(bufferedImage, "/Users/paipeng/Downloads/usb_webcam2.bmp");
+                        DecoderUtil.getInstance().doDecodeWithDetect(bufferedImage, this);
+                    }
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                 }
