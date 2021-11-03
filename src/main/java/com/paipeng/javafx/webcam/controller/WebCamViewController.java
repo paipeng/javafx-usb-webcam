@@ -6,6 +6,7 @@ import com.paipeng.javafx.webcam.utils.DecoderUtil;
 import com.paipeng.javafx.webcam.view.NanogridDecoderResultPane;
 import com.s2icode.jna.nanogrid.decoder.model.S2iDecodeParam;
 import com.s2icode.jna.nanogrid.decoder.model.S2iDecodeScore;
+import com.s2icode.jna.utils.ImageUtils;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
@@ -77,15 +78,16 @@ public class WebCamViewController implements Initializable {
             public void webcamClosed() {
                 logger.trace("webcamClosed");
                 Platform.runLater(() -> openButton.setText(CommonUtil.getString("open_webcam")));
-                previewImageView.setImage(new Image(Objects.requireNonNull(WebCamViewController.class.getResourceAsStream("/images/icons/webcam.png"))));
+                previewImageView.setImage(new Image(Objects.requireNonNull(WebCamViewController.class.getResourceAsStream("/images/logo.png"))));
             }
 
             @Override
             public void updateImage(BufferedImage bufferedImage, double fps) {
-                previewImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
-
-                DecoderUtil.getInstance().doDecodeWithDetect(bufferedImage, decodeUtilInterface);
-
+                if (bufferedImage != null) {
+                    previewImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
+                    DecoderUtil.getInstance().doDecodeWithDetect(bufferedImage, decodeUtilInterface);
+                    ImageUtils.saveBufferedImageToBmp(ImageUtils.convertToGray(bufferedImage), "/Users/paipeng/Downloads/usb_webcam_gray_copy_1-1.bmp");
+                }
             }
         });
     }
@@ -95,6 +97,7 @@ public class WebCamViewController implements Initializable {
     public void updateView(S2iDecodeParam.ByReference s2iDecodeParam, S2iDecodeScore.ByReference s2iDecodeScore) {
         logger.trace("updateView");
 
+        nanogridDecoderResultPane.updateView(s2iDecodeParam, s2iDecodeScore);
     }
 
     public static void start() {
