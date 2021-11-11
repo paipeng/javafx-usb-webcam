@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -71,7 +72,7 @@ public class DecoderUtil {
         S2iCodeImage.ByReference s2iCodeImageModel = new S2iCodeImage.ByReference();
 
         ex8p = new Memory(640 * 640 * Native.getNativeSize(Byte.TYPE));
-        logger.info("Pointer size" + ex8p.SIZE + "-" + ex8p.toString());
+        //logger.info("Pointer size" + ex8p.SIZE + "-" + ex8p.toString());
 
         decodeConfig.calculate_epic = 0;
         decodeConfig.check_nano = 1;//获取纳米数据 0 否  1是
@@ -171,6 +172,6 @@ public class DecoderUtil {
     }
 
     public interface DecodeUtilInterface {
-        void decodedSuccess(S2iDecodeParam.ByReference s2iDecodeParam, S2iDecodeScore.ByReference s2iDecodeScore);
+        void decodedSuccess(S2iDecodeParam.ByReference s2iDecodeParam, S2iDecodeScore.ByReference s2iDecodeScore) throws UnsupportedEncodingException;
     }
 }
