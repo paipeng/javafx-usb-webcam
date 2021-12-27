@@ -79,7 +79,8 @@ public class DotcodeDecoderResultPane  extends Pane {
     public void updateView(BufferedImage bufferedImage) {
         if (bufferedImage != null) {
             decodedImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
-            String data = ZXingUtil.qrCodeDecode(bufferedImage);
+            int factor = 2;
+            String data = ZXingUtil.qrCodeDecode(ImageUtils.resizeBufferedImage(bufferedImage, bufferedImage.getWidth()*factor, bufferedImage.getHeight() * factor));
             dataTextField.setText(data);
             ImageUtils.saveBufferedImageToBmp(bufferedImage, "/Users/paipeng/Downloads/dotcode/decodedimage.bmp");
         }
