@@ -9,6 +9,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
+<?import com.paipeng.javafx.webcam.view.DotcodeDecoderResultPane?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.paipeng.javafx.webcam.controller.WebCamViewController"
@@ -34,7 +35,10 @@
         </AnchorPane>
     </center>
     <right>
+        <!--
         <NanogridDecoderResultPane fx:id="nanogridDecoderResultPane" minWidth="100"/>
+        -->
+        <DotcodeDecoderResultPane fx:id="dotcodeDecoderResultPane" minWidth="100"/>
     </right>
     <bottom>
         <HBox>

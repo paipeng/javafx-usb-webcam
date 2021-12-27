@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.paipeng.javafx.webcam.view.DotcodeDecoderResultPane?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.image.ImageView?>
+<fx:root type="DotcodeDecoderResultPane" xmlns="http://javafx.com/javafx/10.0.2-internal"
+         xmlns:fx="http://javafx.com/fxml/1"
+         fx:controller="com.paipeng.javafx.webcam.view.DotcodeDecoderResultPane">
+
+    <VBox minHeight="0.0" minWidth="0.0" prefHeight="768.0" prefWidth="280.0">
+        <HBox>
+            <ImageView fx:id="decodedImageView" fitHeight="270.0" fitWidth="180.0" pickOnBounds="true"
+                       preserveRatio="true" />
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </HBox>
+        <HBox>
+            <Label text="%dotcode_decoded_text" prefWidth="120" prefHeight="26"/>
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </HBox>
+        <HBox>
+            <TextField fx:id="dataTextField" prefWidth="200.0" prefHeight="26" editable="false">
+                <font>
+                    <Font size="12.0"/>
+                </font>
+            </TextField>
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </HBox>
+
+        <HBox>
+            <Label text="%dotcode_rescale" prefWidth="50" prefHeight="26"/>
+            <Slider fx:id="rescaleSlider" prefWidth="100" prefHeight="26" min="0.5" max="2.5" />
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </HBox>
+        <HBox>
+            <Label text="%dotcode_threshold" prefWidth="50" prefHeight="26"/>
+            <Slider fx:id="thresholdSlider" prefWidth="100" prefHeight="26" min="0.0" max="255.0" />
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </HBox>
+
+
+    </VBox>
+</fx:root>

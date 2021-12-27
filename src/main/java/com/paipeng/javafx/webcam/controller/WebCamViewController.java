@@ -3,6 +3,7 @@ package com.paipeng.javafx.webcam.controller;
 import com.paipeng.javafx.webcam.utils.CameraUtil;
 import com.paipeng.javafx.webcam.utils.CommonUtil;
 import com.paipeng.javafx.webcam.utils.DecoderUtil;
+import com.paipeng.javafx.webcam.view.DotcodeDecoderResultPane;
 import com.paipeng.javafx.webcam.view.NanogridDecoderResultPane;
 import com.s2icode.jna.nanogrid.decoder.model.S2iDecodeParam;
 import com.s2icode.jna.nanogrid.decoder.model.S2iDecodeScore;
@@ -49,9 +50,11 @@ public class WebCamViewController implements Initializable {
     @FXML
     private TextField fpsTextField;
 
-    @FXML
-    private NanogridDecoderResultPane nanogridDecoderResultPane;
+    //@FXML
+    //private NanogridDecoderResultPane nanogridDecoderResultPane;
 
+    @FXML
+    private DotcodeDecoderResultPane dotcodeDecoderResultPane;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -95,8 +98,8 @@ public class WebCamViewController implements Initializable {
                     CodeImage.ByReference codeImage = ImageUtil.convertBufferedImageToCodeImage(bufferedImage);
                     DotCodeParam.ByReference dotCodeParam = new DotCodeParam.ByReference();
 
-                    dotCodeParam.rescale = 1;
-                    dotCodeParam.threshold = 120;
+                    dotCodeParam.rescale = dotcodeDecoderResultPane.getRescale();
+                    dotCodeParam.threshold = dotcodeDecoderResultPane.getThreshold();
 
                     com.s2icode.s2idetect.CodeImage.ByReference decodedImage = new com.s2icode.s2idetect.CodeImage.ByReference();
 
@@ -112,8 +115,9 @@ public class WebCamViewController implements Initializable {
 
                     BufferedImage bufferedImage1 = ImageUtil.convertCodeImageToBufferedImaged(decodedImage);
 
+                    Platform.runLater(() -> dotcodeDecoderResultPane.updateView(bufferedImage1));
+
                     //DecoderUtil.getInstance().doDecodeWithDetect(bufferedImage, decodeUtilInterface);
-                    ImageUtils.saveBufferedImageToBmp(bufferedImage1, "/Users/paipeng/Downloads/dotcode/decodedimage.bmp");
                 }
             }
         });
@@ -124,7 +128,7 @@ public class WebCamViewController implements Initializable {
     public void updateView(S2iDecodeParam.ByReference s2iDecodeParam, S2iDecodeScore.ByReference s2iDecodeScore) {
         logger.trace("updateView");
 
-        nanogridDecoderResultPane.updateView(s2iDecodeParam, s2iDecodeScore);
+        //nanogridDecoderResultPane.updateView(s2iDecodeParam, s2iDecodeScore);
     }
 
     public static void start() {
