@@ -57,8 +57,13 @@ public class DotcodeDecoderResultPane  extends Pane {
     private void initView() {
         logger.trace("initView");
         dataTextField.setText("");
-        rescaleSlider.setValue(1);
-        thresholdSlider.setValue(100);
+        rescaleSlider.setValue(0.545);
+        thresholdSlider.setValue(120);
+        rescaleSlider.setShowTickLabels(true);
+        rescaleSlider.setShowTickMarks(true);
+
+        thresholdSlider.setShowTickLabels(true);
+        thresholdSlider.setShowTickMarks(true);
     }
 
     public float getRescale() {

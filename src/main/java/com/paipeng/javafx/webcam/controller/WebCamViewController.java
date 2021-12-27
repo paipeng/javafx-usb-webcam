@@ -56,6 +56,8 @@ public class WebCamViewController implements Initializable {
     @FXML
     private DotcodeDecoderResultPane dotcodeDecoderResultPane;
 
+
+    private CodeImage.ByReference decodedImage = null;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         previewImageView.setImage(new Image(Objects.requireNonNull(WebCamViewController.class.getResourceAsStream("/images/logo.png"))));
@@ -90,10 +92,10 @@ public class WebCamViewController implements Initializable {
             }
 
             @Override
-            public void updateImage(BufferedImage bufferedImage, double fps) {
+            public synchronized void updateImage(BufferedImage bufferedImage, double fps) {
                 if (bufferedImage != null) {
                     previewImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
-                    String saveFolder = "/Users/paipeng/Downloads/dotcode/";
+                    String saveFolder = null;//"/Users/paipeng/Downloads/dotcode";
 
                     CodeImage.ByReference codeImage = ImageUtil.convertBufferedImageToCodeImage(bufferedImage);
                     DotCodeParam.ByReference dotCodeParam = new DotCodeParam.ByReference();
@@ -101,8 +103,7 @@ public class WebCamViewController implements Initializable {
                     dotCodeParam.rescale = dotcodeDecoderResultPane.getRescale();
                     dotCodeParam.threshold = dotcodeDecoderResultPane.getThreshold();
 
-                    com.s2icode.s2idetect.CodeImage.ByReference decodedImage = new com.s2icode.s2idetect.CodeImage.ByReference();
-
+                    decodedImage = new CodeImage.ByReference();
                     decodedImage.width = (int)(codeImage.width*dotCodeParam.rescale/12);
                     decodedImage.height = (int)(codeImage.height*dotCodeParam.rescale/12);
 
@@ -113,9 +114,8 @@ public class WebCamViewController implements Initializable {
                     int ret = S2iDetect.dotcodeDecode(codeImage, dotCodeParam, decodedImage, saveFolder);
                     logger.trace("dotcodeDecode ret: " + ret);
 
-                    BufferedImage bufferedImage1 = ImageUtil.convertCodeImageToBufferedImaged(decodedImage);
+                    Platform.runLater(() -> dotcodeDecoderResultPane.updateView(ImageUtil.convertCodeImageToBufferedImaged(decodedImage)));
 
-                    Platform.runLater(() -> dotcodeDecoderResultPane.updateView(bufferedImage1));
 
                     //DecoderUtil.getInstance().doDecodeWithDetect(bufferedImage, decodeUtilInterface);
                 }
