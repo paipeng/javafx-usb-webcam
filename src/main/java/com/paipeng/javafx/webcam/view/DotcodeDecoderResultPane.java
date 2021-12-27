@@ -1,5 +1,6 @@
 package com.paipeng.javafx.webcam.view;
 
+import com.paipeng.javafx.webcam.utils.ZXingUtil;
 import com.s2icode.jna.utils.ImageUtils;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
@@ -57,7 +58,7 @@ public class DotcodeDecoderResultPane  extends Pane {
     private void initView() {
         logger.trace("initView");
         dataTextField.setText("");
-        rescaleSlider.setValue(0.545);
+        rescaleSlider.setValue(0.555);
         thresholdSlider.setValue(120);
         rescaleSlider.setShowTickLabels(true);
         rescaleSlider.setShowTickMarks(true);
@@ -78,6 +79,8 @@ public class DotcodeDecoderResultPane  extends Pane {
     public void updateView(BufferedImage bufferedImage) {
         if (bufferedImage != null) {
             decodedImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
+            String data = ZXingUtil.qrCodeDecode(bufferedImage);
+            dataTextField.setText(data);
             ImageUtils.saveBufferedImageToBmp(bufferedImage, "/Users/paipeng/Downloads/dotcode/decodedimage.bmp");
         }
     }
