@@ -75,7 +75,7 @@ public class WebCamViewController implements Initializable {
             }
         });
 
-        DecoderUtil.getInstance().initNanogridDecoder();
+        //DecoderUtil.getInstance().initNanogridDecoder();
 
         CameraUtil.getInstance().setCameraUtilInterface(new CameraUtil.CameraUtilInterface() {
             @Override
