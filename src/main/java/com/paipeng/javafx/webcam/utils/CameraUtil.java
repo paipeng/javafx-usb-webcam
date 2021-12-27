@@ -48,6 +48,8 @@ public class CameraUtil {
                 webCamCounter++;
                 if (d.getNameStr().contains("Andonstar Camera")) {
                     webCamIndex = i;
+                } else if (d.getNameStr().contains("USB")) {
+                    webCamIndex = i;
                 }
             }
         } catch (Exception e) {
