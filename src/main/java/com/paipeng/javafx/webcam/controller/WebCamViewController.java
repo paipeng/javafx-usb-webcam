@@ -7,6 +7,11 @@ import com.paipeng.javafx.webcam.view.NanogridDecoderResultPane;
 import com.s2icode.jna.nanogrid.decoder.model.S2iDecodeParam;
 import com.s2icode.jna.nanogrid.decoder.model.S2iDecodeScore;
 import com.s2icode.jna.utils.ImageUtils;
+import com.s2icode.s2idetect.CodeImage;
+import com.s2icode.s2idetect.DotCodeParam;
+import com.s2icode.s2idetect.S2iDetect;
+import com.s2icode.s2idetect.utils.ImageUtil;
+import com.sun.jna.Pointer;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
@@ -85,8 +90,30 @@ public class WebCamViewController implements Initializable {
             public void updateImage(BufferedImage bufferedImage, double fps) {
                 if (bufferedImage != null) {
                     previewImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
-                    DecoderUtil.getInstance().doDecodeWithDetect(bufferedImage, decodeUtilInterface);
-                    ImageUtils.saveBufferedImageToBmp(ImageUtils.convertToGray(bufferedImage), "/Users/paipeng/Downloads/usb_webcam_gray_copy_1-1.bmp");
+                    String saveFolder = "/Users/paipeng/Downloads/dotcode/";
+
+                    CodeImage.ByReference codeImage = ImageUtil.convertBufferedImageToCodeImage(bufferedImage);
+                    DotCodeParam.ByReference dotCodeParam = new DotCodeParam.ByReference();
+
+                    dotCodeParam.rescale = 1;
+                    dotCodeParam.threshold = 120;
+
+                    com.s2icode.s2idetect.CodeImage.ByReference decodedImage = new com.s2icode.s2idetect.CodeImage.ByReference();
+
+                    decodedImage.width = (int)(codeImage.width*dotCodeParam.rescale/12);
+                    decodedImage.height = (int)(codeImage.height*dotCodeParam.rescale/12);
+
+                    Pointer resultPointer = com.s2icode.s2idetect.utils.ImageUtil.byteToPointer(new byte[decodedImage.width*decodedImage.height]);
+                    decodedImage.setDataPointer(resultPointer);
+
+
+                    int ret = S2iDetect.dotcodeDecode(codeImage, dotCodeParam, decodedImage, saveFolder);
+                    logger.trace("dotcodeDecode ret: " + ret);
+
+                    BufferedImage bufferedImage1 = ImageUtil.convertCodeImageToBufferedImaged(decodedImage);
+
+                    //DecoderUtil.getInstance().doDecodeWithDetect(bufferedImage, decodeUtilInterface);
+                    ImageUtils.saveBufferedImageToBmp(bufferedImage1, "/Users/paipeng/Downloads/dotcode/decodedimage.bmp");
                 }
             }
         });
