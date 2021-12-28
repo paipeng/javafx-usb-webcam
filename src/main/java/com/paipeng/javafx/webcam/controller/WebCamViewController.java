@@ -58,6 +58,7 @@ public class WebCamViewController implements Initializable {
 
 
     private CodeImage.ByReference decodedImage = null;
+    private static int count = 169;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         previewImageView.setImage(new Image(Objects.requireNonNull(WebCamViewController.class.getResourceAsStream("/images/logo.png"))));
@@ -95,7 +96,8 @@ public class WebCamViewController implements Initializable {
             public synchronized void updateImage(BufferedImage bufferedImage, double fps) {
                 if (bufferedImage != null) {
                     previewImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
-                    ImageUtils.saveBufferedImageToBmp(bufferedImage, "/Users/paipeng/Downloads/dotcode/preview.bmp");
+
+                    ImageUtils.saveBufferedImageToBmp(bufferedImage, String.format("/Users/paipeng/Downloads/dotcode/preview_%d.bmp", count++));
                     String saveFolder = null;//"/Users/paipeng/Downloads/dotcode";
 
                     CodeImage.ByReference codeImage = ImageUtil.convertBufferedImageToCodeImage(bufferedImage);
