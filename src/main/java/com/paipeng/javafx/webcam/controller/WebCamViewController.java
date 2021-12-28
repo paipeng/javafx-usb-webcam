@@ -95,6 +95,7 @@ public class WebCamViewController implements Initializable {
             public synchronized void updateImage(BufferedImage bufferedImage, double fps) {
                 if (bufferedImage != null) {
                     previewImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
+                    ImageUtils.saveBufferedImageToBmp(bufferedImage, "/Users/paipeng/Downloads/dotcode/preview.bmp");
                     String saveFolder = null;//"/Users/paipeng/Downloads/dotcode";
 
                     CodeImage.ByReference codeImage = ImageUtil.convertBufferedImageToCodeImage(bufferedImage);
@@ -113,8 +114,9 @@ public class WebCamViewController implements Initializable {
 
                     int ret = S2iDetect.dotcodeDecode(codeImage, dotCodeParam, decodedImage, saveFolder);
                     logger.trace("dotcodeDecode ret: " + ret);
-
-                    Platform.runLater(() -> dotcodeDecoderResultPane.updateView(ImageUtil.convertCodeImageToBufferedImaged(decodedImage)));
+                    logger.trace("size_idx: " + dotCodeParam.size_idx);
+                    logger.trace("dotcode_width/dotcode_height: " + dotCodeParam.dotcode_width + "-" + dotCodeParam.dotcode_height);
+                    Platform.runLater(() -> dotcodeDecoderResultPane.updateView(ImageUtil.convertCodeImageToBufferedImaged(decodedImage), dotCodeParam));
 
 
                     //DecoderUtil.getInstance().doDecodeWithDetect(bufferedImage, decodeUtilInterface);

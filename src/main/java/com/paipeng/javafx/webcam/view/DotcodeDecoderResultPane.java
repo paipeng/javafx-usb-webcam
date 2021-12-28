@@ -2,6 +2,7 @@ package com.paipeng.javafx.webcam.view;
 
 import com.paipeng.javafx.webcam.utils.ZXingUtil;
 import com.s2icode.jna.utils.ImageUtils;
+import com.s2icode.s2idetect.DotCodeParam;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -59,6 +60,7 @@ public class DotcodeDecoderResultPane  extends Pane {
         logger.trace("initView");
         dataTextField.setText("");
         rescaleSlider.setValue(0.555);
+        rescaleSlider.setValue(1.0);
         thresholdSlider.setValue(120);
         rescaleSlider.setShowTickLabels(true);
         rescaleSlider.setShowTickMarks(true);
@@ -76,13 +78,17 @@ public class DotcodeDecoderResultPane  extends Pane {
         return (int)thresholdSlider.getValue();
     }
 
-    public void updateView(BufferedImage bufferedImage) {
+    public void updateView(BufferedImage bufferedImage, DotCodeParam.ByReference dotCodeParam) {
         if (bufferedImage != null) {
-            decodedImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
-            int factor = 2;
-            String data = ZXingUtil.qrCodeDecode(ImageUtils.resizeBufferedImage(bufferedImage, bufferedImage.getWidth()*factor, bufferedImage.getHeight() * factor));
+            BufferedImage cutBufferedImage = com.s2icode.s2idetect.utils.ImageUtil.cropImage(bufferedImage, 0, 0, dotCodeParam.dotcode_width, dotCodeParam.dotcode_height);
+            logger.trace("cutBufferedImage size: " + cutBufferedImage.getWidth() + "-" + cutBufferedImage.getHeight());
+            int factor = 4;
+            BufferedImage resizeBufferedImage = ImageUtils.resizeBufferedImage(cutBufferedImage, cutBufferedImage.getWidth()*factor, cutBufferedImage.getHeight() * factor);
+            logger.trace("resizeBufferedImage size: " + resizeBufferedImage.getWidth() + "-" + resizeBufferedImage.getHeight());
+            decodedImageView.setImage(SwingFXUtils.toFXImage(resizeBufferedImage, null));
+            String data = ZXingUtil.qrCodeDecode(resizeBufferedImage);
             dataTextField.setText(data);
-            ImageUtils.saveBufferedImageToBmp(bufferedImage, "/Users/paipeng/Downloads/dotcode/decodedimage.bmp");
+            ImageUtils.saveBufferedImageToBmp(resizeBufferedImage, "/Users/paipeng/Downloads/dotcode/decodedimage.bmp");
         }
     }
 }
