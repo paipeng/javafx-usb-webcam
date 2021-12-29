@@ -36,6 +36,9 @@ public class DotcodeDecoderResultPane  extends Pane {
     @FXML
     private Slider thresholdSlider;
 
+    @FXML
+    private TextField detectedRotateTextField;
+
     public DotcodeDecoderResultPane() {
         super();
         ResourceBundle resources = ResourceBundle.getBundle("bundles.languages", new Locale("zh", "Zh"));
@@ -88,6 +91,8 @@ public class DotcodeDecoderResultPane  extends Pane {
             decodedImageView.setImage(SwingFXUtils.toFXImage(resizeBufferedImage, null));
             String data = ZXingUtil.qrCodeDecode(resizeBufferedImage);
             dataTextField.setText(data);
+
+            detectedRotateTextField.setText(String.format("%2.2f (filterSize: %d)", dotCodeParam.detect_rotate, dotCodeParam.size_idx));
             //ImageUtils.saveBufferedImageToBmp(resizeBufferedImage, "/Users/paipeng/Downloads/dotcode/decodedimage.bmp");
         }
     }
