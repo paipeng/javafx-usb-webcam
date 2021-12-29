@@ -28,6 +28,8 @@ public class DotcodeDecoderResultPane  extends Pane {
     private ImageView decodedImageView;
 
     @FXML
+    private ImageView processedImageView;
+    @FXML
     private TextField dataTextField;
 
     @FXML
@@ -81,8 +83,11 @@ public class DotcodeDecoderResultPane  extends Pane {
         return (int)thresholdSlider.getValue();
     }
 
-    public void updateView(BufferedImage bufferedImage, DotCodeParam.ByReference dotCodeParam) {
+    public void updateView(BufferedImage bufferedImage, DotCodeParam.ByReference dotCodeParam, BufferedImage processedBufferedImage) {
         if (bufferedImage != null) {
+            processedImageView.setImage(SwingFXUtils.toFXImage(processedBufferedImage, null));
+
+
             BufferedImage cutBufferedImage = com.s2icode.s2idetect.utils.ImageUtil.cropImage(bufferedImage, 0, 0, dotCodeParam.dotcode_width, dotCodeParam.dotcode_height);
             logger.trace("cutBufferedImage size: " + cutBufferedImage.getWidth() + "-" + cutBufferedImage.getHeight());
             int factor = 4;

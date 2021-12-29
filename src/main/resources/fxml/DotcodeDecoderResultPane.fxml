@@ -12,6 +12,13 @@
 
     <VBox minHeight="0.0" minWidth="0.0" prefHeight="768.0" prefWidth="280.0">
         <HBox>
+            <ImageView fx:id="processedImageView" fitHeight="270.0" fitWidth="180.0" pickOnBounds="true"
+                       preserveRatio="true" />
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+        </HBox>
+        <HBox>
             <ImageView fx:id="decodedImageView" fitHeight="270.0" fitWidth="180.0" pickOnBounds="true"
                        preserveRatio="true" />
             <padding>
