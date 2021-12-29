@@ -97,7 +97,7 @@ public class WebCamViewController implements Initializable {
                 if (bufferedImage != null) {
                     previewImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
 
-                    ImageUtils.saveBufferedImageToBmp(bufferedImage, String.format("/Users/paipeng/Downloads/dotcode/preview_%d.bmp", count++));
+                    //ImageUtils.saveBufferedImageToBmp(bufferedImage, String.format("/Users/paipeng/Downloads/dotcode/preview_%d.bmp", count++));
                     String saveFolder = null;//"/Users/paipeng/Downloads/dotcode";
 
                     CodeImage.ByReference codeImage = ImageUtil.convertBufferedImageToCodeImage(bufferedImage);
@@ -105,6 +105,7 @@ public class WebCamViewController implements Initializable {
 
                     dotCodeParam.rescale = dotcodeDecoderResultPane.getRescale();
                     dotCodeParam.threshold = dotcodeDecoderResultPane.getThreshold();
+                    dotCodeParam.idx = 5;
 
                     decodedImage = new CodeImage.ByReference();
                     decodedImage.width = (int)(codeImage.width*dotCodeParam.rescale/12);
