@@ -3,6 +3,7 @@ package com.paipeng.javafx.webcam.view;
 import com.paipeng.javafx.webcam.utils.ZXingUtil;
 import com.s2icode.jna.utils.ImageUtils;
 import com.s2icode.s2idetect.DotCodeParam;
+import com.s2icode.s2idetect.DotCodeResult;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -83,12 +84,12 @@ public class DotcodeDecoderResultPane  extends Pane {
         return (int)thresholdSlider.getValue();
     }
 
-    public void updateView(BufferedImage bufferedImage, DotCodeParam.ByReference dotCodeParam, BufferedImage processedBufferedImage) {
+    public void updateView(BufferedImage bufferedImage, DotCodeParam.ByReference dotCodeParam, DotCodeResult.ByReference dotCodeResult, BufferedImage processedBufferedImage) {
         if (bufferedImage != null) {
             processedImageView.setImage(SwingFXUtils.toFXImage(processedBufferedImage, null));
 
 
-            BufferedImage cutBufferedImage = com.s2icode.s2idetect.utils.ImageUtil.cropImage(bufferedImage, 0, 0, dotCodeParam.dotcode_width, dotCodeParam.dotcode_height);
+            BufferedImage cutBufferedImage = com.s2icode.s2idetect.utils.ImageUtil.cropImage(bufferedImage, 0, 0, dotCodeResult.dotcode_width, dotCodeResult.dotcode_height);
             logger.trace("cutBufferedImage size: " + cutBufferedImage.getWidth() + "-" + cutBufferedImage.getHeight());
             int factor = 4;
             BufferedImage resizeBufferedImage = ImageUtils.resizeBufferedImage(cutBufferedImage, cutBufferedImage.getWidth()*factor, cutBufferedImage.getHeight() * factor);
@@ -97,7 +98,7 @@ public class DotcodeDecoderResultPane  extends Pane {
             String data = ZXingUtil.qrCodeDecode(resizeBufferedImage);
             dataTextField.setText(data);
 
-            detectedRotateTextField.setText(String.format("%2.2f (filterSize: %d)", dotCodeParam.detect_rotate, dotCodeParam.size_idx));
+            detectedRotateTextField.setText(String.format("%2.2f (filterSize: %d)", dotCodeResult.detected_rotate, dotCodeResult.size_idx));
             //ImageUtils.saveBufferedImageToBmp(resizeBufferedImage, "/Users/paipeng/Downloads/dotcode/decodedimage.bmp");
         }
     }

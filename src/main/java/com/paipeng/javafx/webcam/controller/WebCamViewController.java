@@ -10,6 +10,7 @@ import com.s2icode.jna.nanogrid.decoder.model.S2iDecodeScore;
 import com.s2icode.jna.utils.ImageUtils;
 import com.s2icode.s2idetect.CodeImage;
 import com.s2icode.s2idetect.DotCodeParam;
+import com.s2icode.s2idetect.DotCodeResult;
 import com.s2icode.s2idetect.S2iDetect;
 import com.s2icode.s2idetect.utils.ImageUtil;
 import com.sun.jna.Pointer;
@@ -105,6 +106,15 @@ public class WebCamViewController implements Initializable {
                     dotCodeParam.rescale = dotcodeDecoderResultPane.getRescale();
                     dotCodeParam.threshold = dotcodeDecoderResultPane.getThreshold();
                     dotCodeParam.idx = 5;
+                    dotCodeParam.detect_rotate = 1;
+                    dotCodeParam.crop_width = 200;
+                    dotCodeParam.crop_height = 100;
+                    dotCodeParam.resize_width = 200;
+                    dotCodeParam.resize_height = 100;
+
+
+                    DotCodeResult.ByReference dotCodeResult = new DotCodeResult.ByReference();
+
 
                     decodedImage = new CodeImage.ByReference();
                     decodedImage.width = (int)(codeImage.width*dotCodeParam.rescale/12);
@@ -125,15 +135,15 @@ public class WebCamViewController implements Initializable {
 
 
 
-                    int ret = S2iDetect.dotcodeDecode(codeImage, dotCodeParam, decodedImage, processedImage, saveFolder);
+                    int ret = S2iDetect.dotcodeDecode(codeImage, dotCodeParam, dotCodeResult, decodedImage, processedImage, saveFolder);
                     logger.trace("dotcodeDecode ret: " + ret);
-                    logger.trace("size_idx: " + dotCodeParam.size_idx);
-                    logger.trace("dotcode_width/dotcode_height: " + dotCodeParam.dotcode_width + "-" + dotCodeParam.dotcode_height);
+                    logger.trace("size_idx: " + dotCodeResult.size_idx);
+                    logger.trace("dotcode_width/dotcode_height: " + dotCodeResult.dotcode_width + "-" + dotCodeResult.dotcode_height);
 
 
                     BufferedImage bufferedImage1 = ImageUtil.convertCodeImageToBufferedImaged(processedImage);
                     Platform.runLater(() -> {
-                        dotcodeDecoderResultPane.updateView(ImageUtil.convertCodeImageToBufferedImaged(decodedImage), dotCodeParam, bufferedImage);
+                        dotcodeDecoderResultPane.updateView(ImageUtil.convertCodeImageToBufferedImaged(decodedImage), dotCodeParam, dotCodeResult, bufferedImage);
                         previewImageView.setImage(SwingFXUtils.toFXImage(bufferedImage1, null));
                     });
 
