@@ -138,8 +138,6 @@ public class DotcodeDecoderResultPane  extends Pane {
                 logger.trace("asynchronTask still running, skip this frame");
             }
         }
-
-        //processedImageView.setImage(SwingFXUtils.toFXImage(processedBufferedImage, null));
     }
 
     private void doDotCodeDecode(CodeImage.ByReference codeImage) {
@@ -152,7 +150,7 @@ public class DotcodeDecoderResultPane  extends Pane {
 
         dotCodeParam.rescale = getRescale();
         dotCodeParam.threshold = getThreshold();
-        dotCodeParam.idx = 5;
+        dotCodeParam.idx = -1;
         dotCodeParam.detect_rotate = 1;
         dotCodeParam.crop_width = 200;
         dotCodeParam.crop_height = 100;
@@ -203,7 +201,7 @@ public class DotcodeDecoderResultPane  extends Pane {
 
         BufferedImage processedBufferedImage = ImageUtil.convertCodeImageToBufferedImaged(processedImage);
         dotcodeDecoderResultPaneInterface.updateProcessedBufferedImage(processedBufferedImage);
-
+        //processedImageView.setImage(SwingFXUtils.toFXImage(processedBufferedImage, null));
 
         Platform.runLater(() -> {
             //processedImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
