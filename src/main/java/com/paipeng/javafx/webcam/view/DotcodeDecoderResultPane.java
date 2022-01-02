@@ -117,11 +117,13 @@ public class DotcodeDecoderResultPane  extends Pane {
             Platform.runLater(() -> {
                 processedImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
             });
+            CodeImage.ByReference codeImage = ImageUtil.convertBufferedImageToCodeImage(bufferedImage);
+
             boolean running = AsynchronTaskUtil.startTask(new AsynchronTaskUtil.AsynchronTaskInterface() {
                 @Override
                 public void doTask() {
                     logger.trace("doTask");
-                    doDotCodeDecode(bufferedImage);
+                    doDotCodeDecode(codeImage);
                     logger.trace("doTask end");
                 }
 
@@ -140,13 +142,12 @@ public class DotcodeDecoderResultPane  extends Pane {
         //processedImageView.setImage(SwingFXUtils.toFXImage(processedBufferedImage, null));
     }
 
-    private void doDotCodeDecode(BufferedImage bufferedImage) {
+    private void doDotCodeDecode(CodeImage.ByReference codeImage) {
         logger.trace("doDotCodeDecode");
 
         //ImageUtils.saveBufferedImageToBmp(bufferedImage, String.format("/Users/paipeng/Downloads/dotcode/preview_%d.bmp", count++));
         String saveFolder = null;//"/Users/paipeng/Downloads/dotcode";
 
-        CodeImage.ByReference codeImage = ImageUtil.convertBufferedImageToCodeImage(bufferedImage);
         DotCodeParam.ByReference dotCodeParam = new DotCodeParam.ByReference();
 
         dotCodeParam.rescale = getRescale();
