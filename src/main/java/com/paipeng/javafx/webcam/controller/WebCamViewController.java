@@ -147,9 +147,6 @@ public class WebCamViewController implements Initializable {
                         dotcodeDecoderResultPane.updateView(ImageUtil.convertCodeImageToBufferedImaged(decodedImage), dotCodeParam, dotCodeResult, bufferedImage);
                         previewImageView.setImage(SwingFXUtils.toFXImage(bufferedImage1, null));
                     });
-
-
-
                     //DecoderUtil.getInstance().doDecodeWithDetect(bufferedImage, decodeUtilInterface);
                 }
             }
