@@ -58,8 +58,10 @@ public class DotcodeDecoderResultPane  extends Pane {
 
 
     private CodeImage.ByReference decodedImage = null;
+    private CodeImage.ByReference processedImage = null;
     private static int count = 169;
     private boolean running = false;
+    DotCodeResult.ByReference dotCodeResult;
 
     public DotcodeDecoderResultPane() {
         super();
@@ -109,11 +111,38 @@ public class DotcodeDecoderResultPane  extends Pane {
 
 
     public synchronized void decodeDotCode(BufferedImage bufferedImage) {
-        logger.trace("decodeDotCode: " + running);
-        if (running) {
-            return;
+        logger.trace("decodeDotCode");
+
+        if (bufferedImage != null) {
+            Platform.runLater(() -> {
+                processedImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
+            });
+            boolean running = AsynchronTaskUtil.startTask(new AsynchronTaskUtil.AsynchronTaskInterface() {
+                @Override
+                public void doTask() {
+                    logger.trace("doTask");
+                    doDotCodeDecode(bufferedImage);
+                    logger.trace("doTask end");
+                }
+
+                @Override
+                public void taskEnd() {
+                    logger.trace("taskEnd");
+                    updateView();
+                }
+            });
+
+            if (running) {
+                logger.trace("asynchronTask still running, skip this frame");
+            }
         }
-        running = true;
+
+        //processedImageView.setImage(SwingFXUtils.toFXImage(processedBufferedImage, null));
+    }
+
+    private void doDotCodeDecode(BufferedImage bufferedImage) {
+        logger.trace("doDotCodeDecode");
+
         //ImageUtils.saveBufferedImageToBmp(bufferedImage, String.format("/Users/paipeng/Downloads/dotcode/preview_%d.bmp", count++));
         String saveFolder = null;//"/Users/paipeng/Downloads/dotcode";
 
@@ -129,7 +158,7 @@ public class DotcodeDecoderResultPane  extends Pane {
         dotCodeParam.resize_width = 200;
         dotCodeParam.resize_height = 100;
 
-        DotCodeResult.ByReference dotCodeResult = new DotCodeResult.ByReference();
+        dotCodeResult = new DotCodeResult.ByReference();
 
         decodedImage = new CodeImage.ByReference();
         decodedImage.width = (int)(codeImage.width*dotCodeParam.rescale/12);
@@ -139,7 +168,7 @@ public class DotcodeDecoderResultPane  extends Pane {
         decodedImage.setDataPointer(resultPointer);
 
 
-        CodeImage.ByReference processedImage = new CodeImage.ByReference();
+        processedImage = new CodeImage.ByReference();
 
         processedImage.width = codeImage.width;
         processedImage.height = codeImage.height;
@@ -154,6 +183,11 @@ public class DotcodeDecoderResultPane  extends Pane {
         logger.trace("size_idx: " + dotCodeResult.size_idx);
         logger.trace("dotcode_width/dotcode_height: " + dotCodeResult.dotcode_width + "-" + dotCodeResult.dotcode_height);
 
+
+    }
+
+    public void updateView() {
+        logger.trace("updateView");
 
 
         //updateView(bufferedImage, dotCodeParam, dotCodeResult, processedBufferedImage);
@@ -171,7 +205,7 @@ public class DotcodeDecoderResultPane  extends Pane {
 
 
         Platform.runLater(() -> {
-            processedImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
+            //processedImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
             if (dotCodeBufferedImage != null) {
                 decodedImageView.setImage(SwingFXUtils.toFXImage(dotCodeBufferedImage, null));
             }
@@ -179,51 +213,6 @@ public class DotcodeDecoderResultPane  extends Pane {
             detectedRotateTextField.setText(String.format("%2.2f (filterSize: %d)", dotCodeResult.detected_rotate, dotCodeResult.size_idx));
 
         });
-
-        running = false;
-
-        //processedImageView.setImage(SwingFXUtils.toFXImage(processedBufferedImage, null));
-    }
-
-    public void updateView(BufferedImage bufferedImage, DotCodeParam.ByReference dotCodeParam, DotCodeResult.ByReference dotCodeResult, BufferedImage processedBufferedImage) {
-        logger.trace("updateView");
-        if (bufferedImage != null) {
-            boolean running = AsynchronTaskUtil.startTask(new AsynchronTaskUtil.AsynchronTaskInterface() {
-                @Override
-                public void doTask() {
-                    logger.trace("doTask");
-
-                    BufferedImage cutBufferedImage = com.s2icode.s2idetect.utils.ImageUtil.cropImage(bufferedImage, 0, 0, dotCodeResult.dotcode_width, dotCodeResult.dotcode_height);
-                    logger.trace("cutBufferedImage size: " + cutBufferedImage.getWidth() + "-" + cutBufferedImage.getHeight());
-                    int factor = 4;
-                    BufferedImage dotCodeBufferedImage = ImageUtils.resizeBufferedImage(cutBufferedImage, cutBufferedImage.getWidth()*factor, cutBufferedImage.getHeight() * factor);
-                    //logger.trace("resizeBufferedImage size: " + dotCodeBufferedImage.getWidth() + "-" + dotCodeBufferedImage.getHeight());
-                    dotCodeData = ZXingUtil.qrCodeDecode(dotCodeBufferedImage);
-
-                    logger.trace("doTask end");
-                }
-
-                @Override
-                public void taskEnd() {
-                    logger.trace("taskEnd");
-                    processedImageView.setImage(SwingFXUtils.toFXImage(processedBufferedImage, null));
-                    /*
-                    if (dotCodeBufferedImage != null) {
-                        decodedImageView.setImage(SwingFXUtils.toFXImage(dotCodeBufferedImage, null));
-                    }
-
-                     */
-
-                    dataTextField.setText(dotCodeData);
-                    detectedRotateTextField.setText(String.format("%2.2f (filterSize: %d)", dotCodeResult.detected_rotate, dotCodeResult.size_idx));
-                    //ImageUtils.saveBufferedImageToBmp(resizeBufferedImage, "/Users/paipeng/Downloads/dotcode/decodedimage.bmp");
-                }
-            });
-
-            if (running) {
-                logger.trace("asynchronTask still running, skip this frame");
-            }
-        }
     }
 
     public interface DotcodeDecoderResultPaneInterface {
