@@ -98,6 +98,8 @@ public class WebCamViewController implements Initializable {
             @Override
             public synchronized void updateImage(BufferedImage bufferedImage, double fps) {
                 if (bufferedImage != null) {
+                    //previewImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
+
                     //ImageUtils.saveBufferedImageToBmp(bufferedImage, String.format("/Users/paipeng/Downloads/dotcode/preview_%d.bmp", count++));
                     String saveFolder = null;//"/Users/paipeng/Downloads/dotcode";
 
@@ -147,6 +149,7 @@ public class WebCamViewController implements Initializable {
                         dotcodeDecoderResultPane.updateView(ImageUtil.convertCodeImageToBufferedImaged(decodedImage), dotCodeParam, dotCodeResult, bufferedImage);
                         previewImageView.setImage(SwingFXUtils.toFXImage(bufferedImage1, null));
                     });
+
                     //DecoderUtil.getInstance().doDecodeWithDetect(bufferedImage, decodeUtilInterface);
                 }
             }

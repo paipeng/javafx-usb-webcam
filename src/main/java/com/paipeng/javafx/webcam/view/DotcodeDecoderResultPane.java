@@ -1,5 +1,7 @@
 package com.paipeng.javafx.webcam.view;
 
+import com.paipeng.javafx.webcam.utils.AsynchronTaskUtil;
+import com.paipeng.javafx.webcam.utils.CommonUtil;
 import com.paipeng.javafx.webcam.utils.ZXingUtil;
 import com.s2icode.jna.utils.ImageUtils;
 import com.s2icode.s2idetect.DotCodeParam;
@@ -41,6 +43,9 @@ public class DotcodeDecoderResultPane  extends Pane {
 
     @FXML
     private TextField detectedRotateTextField;
+
+    private BufferedImage dotCodeBufferedImage;
+    private String dotCodeData;
 
     public DotcodeDecoderResultPane() {
         super();
@@ -86,20 +91,38 @@ public class DotcodeDecoderResultPane  extends Pane {
 
     public void updateView(BufferedImage bufferedImage, DotCodeParam.ByReference dotCodeParam, DotCodeResult.ByReference dotCodeResult, BufferedImage processedBufferedImage) {
         if (bufferedImage != null) {
-            processedImageView.setImage(SwingFXUtils.toFXImage(processedBufferedImage, null));
+            boolean running = AsynchronTaskUtil.startTask(new AsynchronTaskUtil.AsynchronTaskInterface() {
+                @Override
+                public void doTask() {
+                    logger.trace("doTask");
 
+                    BufferedImage cutBufferedImage = com.s2icode.s2idetect.utils.ImageUtil.cropImage(bufferedImage, 0, 0, dotCodeResult.dotcode_width, dotCodeResult.dotcode_height);
+                    logger.trace("cutBufferedImage size: " + cutBufferedImage.getWidth() + "-" + cutBufferedImage.getHeight());
+                    int factor = 4;
+                    dotCodeBufferedImage = ImageUtils.resizeBufferedImage(cutBufferedImage, cutBufferedImage.getWidth()*factor, cutBufferedImage.getHeight() * factor);
+                    //logger.trace("resizeBufferedImage size: " + dotCodeBufferedImage.getWidth() + "-" + dotCodeBufferedImage.getHeight());
+                    dotCodeData = ZXingUtil.qrCodeDecode(dotCodeBufferedImage);
 
-            BufferedImage cutBufferedImage = com.s2icode.s2idetect.utils.ImageUtil.cropImage(bufferedImage, 0, 0, dotCodeResult.dotcode_width, dotCodeResult.dotcode_height);
-            logger.trace("cutBufferedImage size: " + cutBufferedImage.getWidth() + "-" + cutBufferedImage.getHeight());
-            int factor = 4;
-            BufferedImage resizeBufferedImage = ImageUtils.resizeBufferedImage(cutBufferedImage, cutBufferedImage.getWidth()*factor, cutBufferedImage.getHeight() * factor);
-            logger.trace("resizeBufferedImage size: " + resizeBufferedImage.getWidth() + "-" + resizeBufferedImage.getHeight());
-            decodedImageView.setImage(SwingFXUtils.toFXImage(resizeBufferedImage, null));
-            String data = ZXingUtil.qrCodeDecode(resizeBufferedImage);
-            dataTextField.setText(data);
+                    logger.trace("doTask end");
+                }
 
-            detectedRotateTextField.setText(String.format("%2.2f (filterSize: %d)", dotCodeResult.detected_rotate, dotCodeResult.size_idx));
-            //ImageUtils.saveBufferedImageToBmp(resizeBufferedImage, "/Users/paipeng/Downloads/dotcode/decodedimage.bmp");
+                @Override
+                public void taskEnd() {
+                    logger.trace("taskEnd");
+                    processedImageView.setImage(SwingFXUtils.toFXImage(processedBufferedImage, null));
+                    if (dotCodeBufferedImage != null) {
+                        decodedImageView.setImage(SwingFXUtils.toFXImage(dotCodeBufferedImage, null));
+                    }
+
+                    dataTextField.setText(dotCodeData);
+                    detectedRotateTextField.setText(String.format("%2.2f (filterSize: %d)", dotCodeResult.detected_rotate, dotCodeResult.size_idx));
+                    //ImageUtils.saveBufferedImageToBmp(resizeBufferedImage, "/Users/paipeng/Downloads/dotcode/decodedimage.bmp");
+                }
+            });
+
+            if (running) {
+                logger.trace("asynchronTask still running, skip this frame");
+            }
         }
     }
 }
