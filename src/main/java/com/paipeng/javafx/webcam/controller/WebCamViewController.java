@@ -89,16 +89,17 @@ public class WebCamViewController implements Initializable {
             @Override
             public void webcamClosed() {
                 logger.trace("webcamClosed");
-                Platform.runLater(() -> openButton.setText(CommonUtil.getString("open_webcam")));
-                previewImageView.setImage(new Image(Objects.requireNonNull(WebCamViewController.class.getResourceAsStream("/images/logo.png"))));
+                Platform.runLater(() -> {
+                    openButton.setText(CommonUtil.getString("open_webcam"));
+                    previewImageView.setImage(new Image(Objects.requireNonNull(WebCamViewController.class.getResourceAsStream("/images/logo.png"))));
+                });
             }
 
             @Override
             public synchronized void updateImage(BufferedImage bufferedImage, double fps) {
                 if (bufferedImage != null) {
-
                     //ImageUtils.saveBufferedImageToBmp(bufferedImage, String.format("/Users/paipeng/Downloads/dotcode/preview_%d.bmp", count++));
-                    String saveFolder = "/Users/paipeng/Downloads/dotcode";
+                    String saveFolder = null;//"/Users/paipeng/Downloads/dotcode";
 
                     CodeImage.ByReference codeImage = ImageUtil.convertBufferedImageToCodeImage(bufferedImage);
                     DotCodeParam.ByReference dotCodeParam = new DotCodeParam.ByReference();
