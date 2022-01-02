@@ -91,7 +91,7 @@ public class WebCamViewController implements Initializable {
             }
 
             @Override
-            public synchronized void updateImage(BufferedImage bufferedImage, double fps) {
+            public void updateImage(BufferedImage bufferedImage, double fps) {
                 if (bufferedImage != null) {
                     dotcodeDecoderResultPane.decodeDotCode(bufferedImage);
                     //DecoderUtil.getInstance().doDecodeWithDetect(bufferedImage, decodeUtilInterface);

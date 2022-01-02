@@ -52,13 +52,14 @@ public class DotcodeDecoderResultPane  extends Pane {
     @FXML
     private TextField detectedRotateTextField;
 
-    private BufferedImage dotCodeBufferedImage;
+    //private BufferedImage dotCodeBufferedImage;
     private String dotCodeData;
     private DotcodeDecoderResultPaneInterface dotcodeDecoderResultPaneInterface;
 
 
     private CodeImage.ByReference decodedImage = null;
     private static int count = 169;
+    private boolean running = false;
 
     public DotcodeDecoderResultPane() {
         super();
@@ -107,13 +108,12 @@ public class DotcodeDecoderResultPane  extends Pane {
     }
 
 
-    public void decodeDotCode(BufferedImage bufferedImage) {
-        logger.trace("decodeDotCode");
-
-        Platform.runLater(() -> {
-            processedImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
-        });
-
+    public synchronized void decodeDotCode(BufferedImage bufferedImage) {
+        logger.trace("decodeDotCode: " + running);
+        if (running) {
+            return;
+        }
+        running = true;
         //ImageUtils.saveBufferedImageToBmp(bufferedImage, String.format("/Users/paipeng/Downloads/dotcode/preview_%d.bmp", count++));
         String saveFolder = null;//"/Users/paipeng/Downloads/dotcode";
 
@@ -155,11 +155,34 @@ public class DotcodeDecoderResultPane  extends Pane {
         logger.trace("dotcode_width/dotcode_height: " + dotCodeResult.dotcode_width + "-" + dotCodeResult.dotcode_height);
 
 
-        BufferedImage bufferedImage1 = ImageUtil.convertCodeImageToBufferedImaged(processedImage);
-        dotcodeDecoderResultPaneInterface.updateProcessedBufferedImage(bufferedImage1);
+
+        //updateView(bufferedImage, dotCodeParam, dotCodeResult, processedBufferedImage);
+
+        BufferedImage cutBufferedImage = com.s2icode.s2idetect.utils.ImageUtil.cropImage(ImageUtil.convertCodeImageToBufferedImaged(decodedImage), 0, 0, dotCodeResult.dotcode_width, dotCodeResult.dotcode_height);
+        logger.trace("cutBufferedImage size: " + cutBufferedImage.getWidth() + "-" + cutBufferedImage.getHeight());
+        int factor = 4;
+        BufferedImage dotCodeBufferedImage = ImageUtils.resizeBufferedImage(cutBufferedImage, cutBufferedImage.getWidth()*factor, cutBufferedImage.getHeight() * factor);
+        logger.trace("dotCodeBufferedImage size: " + dotCodeBufferedImage.getWidth() + "-" + dotCodeBufferedImage.getHeight());
+        dotCodeData = ZXingUtil.qrCodeDecode(dotCodeBufferedImage);
+        logger.trace("dotCodeData: " + dotCodeData);
+
+        BufferedImage processedBufferedImage = ImageUtil.convertCodeImageToBufferedImaged(processedImage);
+        dotcodeDecoderResultPaneInterface.updateProcessedBufferedImage(processedBufferedImage);
 
 
-        updateView(bufferedImage, dotCodeParam, dotCodeResult, bufferedImage1);
+        Platform.runLater(() -> {
+            processedImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
+            if (dotCodeBufferedImage != null) {
+                decodedImageView.setImage(SwingFXUtils.toFXImage(dotCodeBufferedImage, null));
+            }
+            dataTextField.setText(dotCodeData);
+            detectedRotateTextField.setText(String.format("%2.2f (filterSize: %d)", dotCodeResult.detected_rotate, dotCodeResult.size_idx));
+
+        });
+
+        running = false;
+
+        //processedImageView.setImage(SwingFXUtils.toFXImage(processedBufferedImage, null));
     }
 
     public void updateView(BufferedImage bufferedImage, DotCodeParam.ByReference dotCodeParam, DotCodeResult.ByReference dotCodeResult, BufferedImage processedBufferedImage) {
@@ -173,7 +196,7 @@ public class DotcodeDecoderResultPane  extends Pane {
                     BufferedImage cutBufferedImage = com.s2icode.s2idetect.utils.ImageUtil.cropImage(bufferedImage, 0, 0, dotCodeResult.dotcode_width, dotCodeResult.dotcode_height);
                     logger.trace("cutBufferedImage size: " + cutBufferedImage.getWidth() + "-" + cutBufferedImage.getHeight());
                     int factor = 4;
-                    dotCodeBufferedImage = ImageUtils.resizeBufferedImage(cutBufferedImage, cutBufferedImage.getWidth()*factor, cutBufferedImage.getHeight() * factor);
+                    BufferedImage dotCodeBufferedImage = ImageUtils.resizeBufferedImage(cutBufferedImage, cutBufferedImage.getWidth()*factor, cutBufferedImage.getHeight() * factor);
                     //logger.trace("resizeBufferedImage size: " + dotCodeBufferedImage.getWidth() + "-" + dotCodeBufferedImage.getHeight());
                     dotCodeData = ZXingUtil.qrCodeDecode(dotCodeBufferedImage);
 
@@ -184,9 +207,12 @@ public class DotcodeDecoderResultPane  extends Pane {
                 public void taskEnd() {
                     logger.trace("taskEnd");
                     processedImageView.setImage(SwingFXUtils.toFXImage(processedBufferedImage, null));
+                    /*
                     if (dotCodeBufferedImage != null) {
                         decodedImageView.setImage(SwingFXUtils.toFXImage(dotCodeBufferedImage, null));
                     }
+
+                     */
 
                     dataTextField.setText(dotCodeData);
                     detectedRotateTextField.setText(String.format("%2.2f (filterSize: %d)", dotCodeResult.detected_rotate, dotCodeResult.size_idx));
