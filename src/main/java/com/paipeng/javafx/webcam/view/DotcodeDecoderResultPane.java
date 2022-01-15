@@ -1,8 +1,6 @@
 package com.paipeng.javafx.webcam.view;
 
-import com.paipeng.javafx.webcam.controller.WebCamViewController;
 import com.paipeng.javafx.webcam.utils.AsynchronTaskUtil;
-import com.paipeng.javafx.webcam.utils.CommonUtil;
 import com.paipeng.javafx.webcam.utils.ZXingUtil;
 import com.s2icode.jna.utils.ImageUtils;
 import com.s2icode.s2idetect.CodeImage;
@@ -17,7 +15,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import org.slf4j.Logger;
@@ -27,10 +24,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.ResourceBundle;
 
-public class DotcodeDecoderResultPane  extends Pane {
+public class DotcodeDecoderResultPane extends Pane {
     public static Logger logger = LoggerFactory.getLogger(DotcodeDecoderResultPane.class);
 
     private static final String PREFIX = File.separator + "fxml" + File.separator;
@@ -59,7 +55,7 @@ public class DotcodeDecoderResultPane  extends Pane {
 
     private CodeImage.ByReference decodedImage = null;
     private CodeImage.ByReference processedImage = null;
-    private static int count = 169;
+    private static int count = 1;
     private boolean running = false;
     DotCodeResult.ByReference dotCodeResult;
 
@@ -101,12 +97,12 @@ public class DotcodeDecoderResultPane  extends Pane {
     }
 
     public float getRescale() {
-        return (float)rescaleSlider.getValue();
+        return (float) rescaleSlider.getValue();
     }
 
 
     public int getThreshold() {
-        return (int)thresholdSlider.getValue();
+        return (int) thresholdSlider.getValue();
     }
 
 
@@ -114,9 +110,12 @@ public class DotcodeDecoderResultPane  extends Pane {
         logger.trace("decodeDotCode");
 
         if (bufferedImage != null) {
+            //ImageUtils.saveBufferedImageToBmp(bufferedImage, String.format("/Users/paipeng/Downloads/dotcode/utsch-preview_%d.bmp", count++));
+
             Platform.runLater(() -> {
                 processedImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
             });
+/*
             CodeImage.ByReference codeImage = ImageUtil.convertBufferedImageToCodeImage(bufferedImage);
 
             boolean running = AsynchronTaskUtil.startTask(new AsynchronTaskUtil.AsynchronTaskInterface() {
@@ -137,13 +136,14 @@ public class DotcodeDecoderResultPane  extends Pane {
             if (running) {
                 logger.trace("asynchronTask still running, skip this frame");
             }
+ */
         }
+
     }
 
     private void doDotCodeDecode(CodeImage.ByReference codeImage) {
         logger.trace("doDotCodeDecode");
 
-        //ImageUtils.saveBufferedImageToBmp(bufferedImage, String.format("/Users/paipeng/Downloads/dotcode/preview_%d.bmp", count++));
         String saveFolder = null;//"/Users/paipeng/Downloads/dotcode";
 
         DotCodeParam.ByReference dotCodeParam = new DotCodeParam.ByReference();
@@ -160,10 +160,10 @@ public class DotcodeDecoderResultPane  extends Pane {
         dotCodeResult = new DotCodeResult.ByReference();
 
         decodedImage = new CodeImage.ByReference();
-        decodedImage.width = (int)(codeImage.width*dotCodeParam.rescale/12);
-        decodedImage.height = (int)(codeImage.height*dotCodeParam.rescale/12);
+        decodedImage.width = (int) (codeImage.width * dotCodeParam.rescale / 12);
+        decodedImage.height = (int) (codeImage.height * dotCodeParam.rescale / 12);
 
-        Pointer resultPointer = com.s2icode.s2idetect.utils.ImageUtil.byteToPointer(new byte[decodedImage.width*decodedImage.height]);
+        Pointer resultPointer = com.s2icode.s2idetect.utils.ImageUtil.byteToPointer(new byte[decodedImage.width * decodedImage.height]);
         decodedImage.setDataPointer(resultPointer);
 
 
@@ -173,8 +173,7 @@ public class DotcodeDecoderResultPane  extends Pane {
         processedImage.height = codeImage.height;
         processedImage.image_format = 0;
 
-        processedImage.setDataPointer(com.s2icode.s2idetect.utils.ImageUtil.byteToPointer(new byte[processedImage.width*processedImage.height]));
-
+        processedImage.setDataPointer(com.s2icode.s2idetect.utils.ImageUtil.byteToPointer(new byte[processedImage.width * processedImage.height]));
 
 
         int ret = S2iDetect.dotcodeDecode(codeImage, dotCodeParam, dotCodeResult, decodedImage, processedImage, saveFolder);
@@ -194,7 +193,7 @@ public class DotcodeDecoderResultPane  extends Pane {
         BufferedImage cutBufferedImage = com.s2icode.s2idetect.utils.ImageUtil.cropImage(ImageUtil.convertCodeImageToBufferedImaged(decodedImage), 0, 0, dotCodeResult.dotcode_width, dotCodeResult.dotcode_height);
         logger.trace("cutBufferedImage size: " + cutBufferedImage.getWidth() + "-" + cutBufferedImage.getHeight());
         int factor = 4;
-        BufferedImage dotCodeBufferedImage = ImageUtils.resizeBufferedImage(cutBufferedImage, cutBufferedImage.getWidth()*factor, cutBufferedImage.getHeight() * factor);
+        BufferedImage dotCodeBufferedImage = ImageUtils.resizeBufferedImage(cutBufferedImage, cutBufferedImage.getWidth() * factor, cutBufferedImage.getHeight() * factor);
         logger.trace("dotCodeBufferedImage size: " + dotCodeBufferedImage.getWidth() + "-" + dotCodeBufferedImage.getHeight());
         dotCodeData = ZXingUtil.qrCodeDecode(dotCodeBufferedImage);
         logger.trace("dotCodeData: " + dotCodeData);
