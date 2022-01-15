@@ -6,6 +6,7 @@ import com.paipeng.javafx.webcam.utils.DecoderUtil;
 import com.paipeng.javafx.webcam.view.DotcodeDecoderResultPane;
 import com.s2icode.jna.nanogrid.decoder.model.S2iDecodeParam;
 import com.s2icode.jna.nanogrid.decoder.model.S2iDecodeScore;
+import com.s2icode.jna.utils.ImageUtils;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
@@ -49,6 +50,8 @@ public class WebCamViewController implements Initializable {
     @FXML
     private DotcodeDecoderResultPane dotcodeDecoderResultPane;
 
+    private boolean captureImage;
+    private static int count = 1;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         previewImageView.setImage(new Image(Objects.requireNonNull(WebCamViewController.class.getResourceAsStream("/images/logo.png"))));
@@ -64,6 +67,12 @@ public class WebCamViewController implements Initializable {
                     logger.error("no camera found!");
                 }
             }
+        });
+
+        captureButton.setOnMouseClicked(event -> {
+            logger.trace("openButton clicked");
+
+            captureImage = true;
         });
 
         //DecoderUtil.getInstance().initNanogridDecoder();
@@ -93,6 +102,11 @@ public class WebCamViewController implements Initializable {
             @Override
             public void updateImage(BufferedImage bufferedImage, double fps) {
                 if (bufferedImage != null) {
+                    if (captureImage) {
+                        captureImage = false;
+                        ImageUtils.saveBufferedImageToBmp(bufferedImage, String.format("/Users/paipeng/Downloads/dotcode/utsch-preview_%d.bmp", count++));
+
+                    }
                     dotcodeDecoderResultPane.decodeDotCode(bufferedImage);
                     //DecoderUtil.getInstance().doDecodeWithDetect(bufferedImage, decodeUtilInterface);
                 }

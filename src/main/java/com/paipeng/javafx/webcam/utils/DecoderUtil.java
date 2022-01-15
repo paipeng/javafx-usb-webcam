@@ -27,10 +27,10 @@ import static com.s2icode.jna.utils.ImageUtils.convertPointerToBufferedImage;
 public class DecoderUtil {
     public static Logger logger = LoggerFactory.getLogger(DecoderUtil.class);
 
-    private S2iDetect s2iDetect = null;
+    protected S2iDetect s2iDetect = null;
     private S2iNanogridDecoder s2iNanogridDecoder;
     //通过bufferedimage转换成所需要的图片格式
-    private static S2iCodeImage.ByReference s2iCodeImageModel = null;
+    protected static S2iCodeImage.ByReference s2iCodeImageModel = null;
 
     //解码，防伪码基本信息
     private static S2iDecodeParam.ByReference decodeParam = new S2iDecodeParam.ByReference();
@@ -41,7 +41,7 @@ public class DecoderUtil {
     //图片识别数据（in）
     private static S2iDetectParam.ByValue s2iDetectParam = new S2iDetectParam.ByValue();
 
-    private static Pointer ex8p = null;
+    protected static Pointer ex8p = null;
 
     private static DecoderUtil instance;
 
@@ -166,7 +166,7 @@ public class DecoderUtil {
     }
 
 
-    private BufferedImage getSlaviDetectedBufferedImage(Pointer ex8p) {
+    protected BufferedImage getSlaviDetectedBufferedImage(Pointer ex8p) {
         BufferedImage bufferedImage = convertPointerToBufferedImage(ex8p, 640, 640);
         return bufferedImage;
     }
