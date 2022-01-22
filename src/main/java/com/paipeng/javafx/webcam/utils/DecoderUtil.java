@@ -65,7 +65,7 @@ public class DecoderUtil {
         s2iDetect = new S2iDetect(searchPathList, false);
     }
 
-    public void doDecodeWithDetect(BufferedImage bufferedImage, DecodeUtilInterface decodeUtilInterface) {
+    public synchronized void doDecodeWithDetect(BufferedImage bufferedImage, DecodeUtilInterface decodeUtilInterface) {
         logger.trace("doDecodeWithDetect");
         S2iDecodeScore.ByReference decodeScore = new S2iDecodeScore.ByReference();
         //通过bufferedimage转换成所需要的图片格式
@@ -93,6 +93,7 @@ public class DecoderUtil {
             s2iCodeImageModel.setDataPointer(pointer);
             s2iCodeImageModel.width = 640;
             s2iCodeImageModel.height = 640;
+            logger.trace("do decode");
             ret = s2iNanogridDecoder.decode(s2iCodeImageModel, decodeConfig, decodeParam, decodeScore);
             logger.trace("decode ret: " + ret + " score: " + decodeScore.imageQuality + " nano: " + decodeScore.nanoGridCoefficient);
             logger.trace("decodeParam brand owner name: " + new String(decodeParam.brand_owner_name, 0, 30, "GB18030"));

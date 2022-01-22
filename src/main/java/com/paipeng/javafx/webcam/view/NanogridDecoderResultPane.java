@@ -1,8 +1,11 @@
 package com.paipeng.javafx.webcam.view;
 
+import com.paipeng.javafx.webcam.utils.AsynchronTaskUtil;
+import com.paipeng.javafx.webcam.utils.DecoderUtil;
 import com.s2icode.jna.nanogrid.decoder.model.S2iDecodeParam;
 import com.s2icode.jna.nanogrid.decoder.model.S2iDecodeScore;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.TextArea;
@@ -11,8 +14,10 @@ import javafx.scene.layout.Pane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -54,6 +59,8 @@ public class NanogridDecoderResultPane extends Pane {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        DecoderUtil.getInstance().initNanogridDecoder();
+
     }
 
     private void initView() {
@@ -65,6 +72,38 @@ public class NanogridDecoderResultPane extends Pane {
         nanogridDataTextArea.setText("");
 
         decodeScoreTextField.setText("");
+    }
+
+
+    public synchronized void decode(BufferedImage bufferedImage) {
+        boolean running = AsynchronTaskUtil.startTask(new AsynchronTaskUtil.AsynchronTaskInterface() {
+            @Override
+            public void doTask() {
+                logger.trace("doTask");
+                doNanogridDecode(bufferedImage);
+                logger.trace("doTask end");
+            }
+
+            @Override
+            public void taskEnd() {
+                logger.trace("taskEnd");
+                //updateView();
+            }
+        });
+
+        if (running) {
+            logger.trace("asynchronTask still running, skip this frame");
+        }
+    }
+
+    private void doNanogridDecode(BufferedImage bufferedImage) {
+        DecoderUtil.getInstance().doDecodeWithDetect(bufferedImage, new DecoderUtil.DecodeUtilInterface() {
+            @Override
+            public void decodedSuccess(S2iDecodeParam.ByReference s2iDecodeParam, S2iDecodeScore.ByReference s2iDecodeScore) throws UnsupportedEncodingException {
+                Platform.runLater(() -> updateView(s2iDecodeParam, s2iDecodeScore));
+            }
+        });
+
     }
 
     public void updateView(S2iDecodeParam.ByReference s2iDecodeParam, S2iDecodeScore.ByReference s2iDecodeScore) {

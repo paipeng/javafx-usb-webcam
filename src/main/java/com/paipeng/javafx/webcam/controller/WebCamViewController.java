@@ -4,6 +4,7 @@ import com.paipeng.javafx.webcam.utils.CameraUtil;
 import com.paipeng.javafx.webcam.utils.CommonUtil;
 import com.paipeng.javafx.webcam.utils.DecoderUtil;
 import com.paipeng.javafx.webcam.view.DotcodeDecoderResultPane;
+import com.paipeng.javafx.webcam.view.NanogridDecoderResultPane;
 import com.s2icode.jna.nanogrid.decoder.model.S2iDecodeParam;
 import com.s2icode.jna.nanogrid.decoder.model.S2iDecodeScore;
 import com.s2icode.jna.utils.ImageUtils;
@@ -44,11 +45,11 @@ public class WebCamViewController implements Initializable {
     @FXML
     private TextField fpsTextField;
 
-    //@FXML
-    //private NanogridDecoderResultPane nanogridDecoderResultPane;
-
     @FXML
-    private DotcodeDecoderResultPane dotcodeDecoderResultPane;
+    private NanogridDecoderResultPane nanogridDecoderResultPane;
+
+    //@FXML
+    //private DotcodeDecoderResultPane dotcodeDecoderResultPane;
 
     private boolean captureImage;
     private static int count = 1;
@@ -75,14 +76,16 @@ public class WebCamViewController implements Initializable {
             captureImage = true;
         });
 
-        //DecoderUtil.getInstance().initNanogridDecoder();
 
+        /*
         dotcodeDecoderResultPane.setDotcodeDecoderResultPaneInterface(new DotcodeDecoderResultPane.DotcodeDecoderResultPaneInterface() {
             @Override
             public void updateProcessedBufferedImage(BufferedImage processedBufferedImage) {
                 Platform.runLater(() -> previewImageView.setImage(SwingFXUtils.toFXImage(processedBufferedImage, null)));
             }
         });
+
+         */
         CameraUtil.getInstance().setCameraUtilInterface(new CameraUtil.CameraUtilInterface() {
             @Override
             public void webcamOpened() {
@@ -107,8 +110,9 @@ public class WebCamViewController implements Initializable {
                         ImageUtils.saveBufferedImageToBmp(bufferedImage, String.format("/Users/paipeng/Downloads/dotcode/utsch-preview_%d.bmp", count++));
 
                     }
-                    dotcodeDecoderResultPane.decodeDotCode(bufferedImage);
-                    //DecoderUtil.getInstance().doDecodeWithDetect(bufferedImage, decodeUtilInterface);
+                    Platform.runLater(() -> previewImageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null)));
+                    //dotcodeDecoderResultPane.decodeDotCode(bufferedImage);
+                    nanogridDecoderResultPane.decode(bufferedImage);
                 }
             }
         });
@@ -119,7 +123,7 @@ public class WebCamViewController implements Initializable {
     public void updateView(S2iDecodeParam.ByReference s2iDecodeParam, S2iDecodeScore.ByReference s2iDecodeScore) {
         logger.trace("updateView");
 
-        //nanogridDecoderResultPane.updateView(s2iDecodeParam, s2iDecodeScore);
+        nanogridDecoderResultPane.updateView(s2iDecodeParam, s2iDecodeScore);
     }
 
     public static void start() {

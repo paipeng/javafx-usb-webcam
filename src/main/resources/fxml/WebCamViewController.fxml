@@ -36,9 +36,9 @@
     </center>
     <right>
         <!--
-        <NanogridDecoderResultPane fx:id="nanogridDecoderResultPane" minWidth="100"/>
-        -->
         <DotcodeDecoderResultPane fx:id="dotcodeDecoderResultPane" minWidth="100"/>
+        -->
+        <NanogridDecoderResultPane fx:id="nanogridDecoderResultPane" minWidth="100"/>
     </right>
     <bottom>
         <HBox>
